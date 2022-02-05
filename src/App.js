@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
 
+import Route from './components/Route';
 
 const App = () => {
-  const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
-  
+  const [stops, setStops] = useState([]);
+  const [routes, setRoutes] = useState([]);
+
   const convertObjToArray = (obj) => {
     let arr= []
       for(let i in obj)
@@ -13,74 +15,66 @@ const App = () => {
     return arr;
   };
 
-  const getDistance = (lat1, lon1, lat2, lon2) => {
-    var R = 6371/0.621371; // miles
-
-    var dLat = lat2-lat1;
-    var dLon = lon2-lon1;
-
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-    var d = R * c;
-    return d;
+  const processApiObj = (obj) => {
+    let arr = convertObjToArray(obj.data)
+    arr = arr.map(elmt => elmt[1]);
+    return arr;
   };
 
-  const getClosestStops = (stops_obj, currentLat, currentLon, num) => {
-    let stops = convertObjToArray(stops_obj)
-    stops = stops.map(stop => stop[1]);
-    stops = stops.map(stop => ({...stop, distance : getDistance(stop.lat, stop.lon, currentLat, currentLon)}));
-    stops = stops.sort(function(a, b) {
-      var keyA = a.distance,
-        keyB = b.distance;
-      // Compare the 2 dates
-      if (keyA < keyB) return -1;
-      if (keyA > keyB) return 1;
-      return 0;
-    });
-    return stops.slice(0, num)
-  };
   
-  const geoCode = async (lat, lng) => {
-    const stops_obj = await axios.get('/api/stops/')
-    const stops_list =  getClosestStops(stops_obj.data,lat, lng, 5);
-    const stopIds = stops_list.map(stop => stop.stop_id);
-    console.log(`STOP IDS: ${stopIds}`);
-    let train_times = await axios.get(`/api/train_times/`);
-    train_times = convertObjToArray(train_times.data);
-    train_times = train_times.map(train_time => train_time[1]);
-    train_times = train_times.filter(route => stopIds.includes(route.stop_id));
-    console.log(train_times);
+  const getStopInfo = async (selectedStop) => {
+    console.log(`SELECTEDSTOP: ${selectedStop.value}`);
+    const url = '/api/train_times/' + selectedStop.value;
+    let routes = await axios.get(url);
+    console.log(routes)
+    routes = processApiObj(routes);
+    setRoutes(routes);
+    
+    // .then(routes => setStopInfo(routes));
   };
-
-  function geolocFail(err) {
-    console.warn(`ERROR(${err.code}): ${err.message}`);
-  }
-
-  const options = {
-    enableHighAccuracy: true,
-    maximumAge: 30000,
-    timeout: 10000
+  /*
+    let routes = await axios.get(url);
+    routes = processApiObj(routes);
+    console.log(routes);
   };
-
-  if (navigator.geolocation) {
-
-    navigator.geolocation.getCurrentPosition(function(position) {
-
-        var lat = position.coords.latitude;
-        var lng = position.coords.longitude;
-        geoCode(lat, lng);
-    }, function(error) {
-        geolocFail();
-    }, options);
-  } else {
-      // Fallback for no geolocation
-      geolocFail();
-  }
-
+  */
+  
+  useEffect(() => {
+    axios.get('/api/stops/')
+         .then(stops_list => processApiObj(stops_list))
+         .then(stops_list => stops_list.map(
+                (stop => {
+                    return { 
+                    value: stop.station_id, 
+                    label: stop.name,
+                    }
+                  }
+                )
+              ))
+          .then(results => {setStops(results)});
+  }, []);
+  
   return (
     <div>
-      hello
+      <div>
+        Select stop:
+        <div>
+          <Select
+            options={stops}
+            onChange={opt => getStopInfo(opt)}
+          />
+        </div>
+      </div>
+      
+      {
+       routes === [] ?
+       <div>noroute</div> :
+        routes.map((route, i) =>
+        <Route key={i} route={route} />
+        )
+      }
+      
+    
     </div>
   )
 };
