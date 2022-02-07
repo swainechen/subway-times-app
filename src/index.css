@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Syne+Tactile&display=swap');
+
+body {
+  font-family: Helvetica;
+  padding: 20px;
+  background-color:rgb(187, 207, 235);
+}
+
+h1 {
+  text-shadow: 2px 2px #837f7f;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid #0039A6;
+  background-color: #0039A6;
+  padding: 10px;
+  text-align: center;
+  color:white;
+}
+
+ul {
+  padding-bottom: 95px;
+}
+
+.col-sm-2 > span, .col-sm-2 > p {
+  display: inline-block;
+}
+
+.time {
+  display: inline;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.circle {
+  display: table-cell;
+  text-align: center;
+  border-radius:50%;
+  font-size:30px;
+  color:white;
+  background: green;
+  height:50px;
+  width:50px;
+  vertical-align: middle;
+}
+
+.bannertext {
+  display: table-cell;
+  vertical-align: middle;
+  position: relative;
+  bottom: 15px;
+  font-family: 'Press Start 2P';
+}

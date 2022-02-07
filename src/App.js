@@ -2,46 +2,32 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
 
-import Route from './components/Route';
+import Time from './components/Time';
+import processService from './services/objToArray';
 
 const App = () => {
   const [stops, setStops] = useState([]);
-  const [routes, setRoutes] = useState([]);
+  const [times, setTimes] = useState([]);
 
-  const convertObjToArray = (obj) => {
-    let arr= []
-      for(let i in obj)
-        arr.push([i, obj[i]]);
-    return arr;
-  };
-
-  const processApiObj = (obj) => {
-    let arr = convertObjToArray(obj.data)
-    arr = arr.map(elmt => elmt[1]);
-    return arr;
-  };
-
-  
   const getStopInfo = async (selectedStop) => {
     console.log(`SELECTEDSTOP: ${selectedStop.value}`);
     const url = '/api/train_times/' + selectedStop.value;
-    let routes = await axios.get(url);
-    console.log(routes)
-    routes = processApiObj(routes);
-    setRoutes(routes);
+    let times = await axios.get(url);
+    times = processService.processApiObj(times);
+    times = times[0].trains;
+
+    const routeIds = times.map(time => time.route_id)
+
+    let colors = await axios.get('/api/routes/');
+    colors = colors.data;
     
-    // .then(routes => setStopInfo(routes));
+    times = times.map(time => time={...time, color: colors.find(color => color.route_id === time.route_id).color});
+    setTimes(times);
   };
-  /*
-    let routes = await axios.get(url);
-    routes = processApiObj(routes);
-    console.log(routes);
-  };
-  */
   
   useEffect(() => {
-    axios.get('/api/stops/')
-         .then(stops_list => processApiObj(stops_list))
+    axios.get('/api/stations/')
+         .then(stops_list => processService.processApiObj(stops_list))
          .then(stops_list => stops_list.map(
                 (stop => {
                     return { 
@@ -56,8 +42,9 @@ const App = () => {
   
   return (
     <div>
+      <h1 class='center'><i>WHERE'S MY TRAIN?</i></h1>
       <div>
-        Select stop:
+        Select stop
         <div>
           <Select
             options={stops}
@@ -65,15 +52,15 @@ const App = () => {
           />
         </div>
       </div>
-      
-      {
-       routes === [] ?
-       <div>noroute</div> :
-        routes.map((route, i) =>
-        <Route key={i} route={route} />
-        )
-      }
-      
+      <ol>
+        {
+        times === [] ?
+        <div>No trains running at this station.</div> :
+          times.map((time, i) =>
+          <Time key={i} time={time} />
+          )
+        }
+      </ol>
     
     </div>
   )
