@@ -10,6 +10,7 @@
     "eslint-plugin-cypress": "^2.12.1",
     "prop-types": "^15.8.1",
     "react-dom": "^17.0.2",
+    "react-logger-lib": "^1.0.5",
     "react-scripts": "^5.0.1",
     "react-select": "^5.2.2",
     "react-select-search": "^3.0.9",
@@ -24,7 +25,7 @@
     "server": "json-server -p3001 --watch db.json",
     "cypress:open": "cypress open"
   },
-  "proxy": "http://localhost:3001/",
+  "proxy": "http://127.0.0.1:3001/",
   "eslintConfig": {
     "extends": [
       "react-app",
