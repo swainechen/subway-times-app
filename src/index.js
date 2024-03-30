@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = '';
 ReactDOM.render(
     <App />
 	,

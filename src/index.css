@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Syne+Tactile&display=swap');
 
 body {
-  font-family: Helvetica;
+  font-family: Rubik;
   padding: 20px;
   background-color:rgb(187, 207, 235);
 }
@@ -51,5 +51,6 @@ ul {
   vertical-align: middle;
   position: relative;
   bottom: 15px;
-  font-family: 'Press Start 2P';
+  font-size: 24px;
+  font-family: 'Roboto Mono';
 }
