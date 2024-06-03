@@ -8,139 +8,57 @@ import processService from './services/objToArray';
 
 const App = () => {
   const [stops, setStops] = useState([]);
-  const [tresult1, setResult1] = useState([]);
-  const [tresult2, setResult2] = useState([]);
-  const [tresult3, setResult3] = useState([]);
-  const [url1, setUrl1] = useState('/api/train_times/157');
-  const [url2, setUrl2] = useState('');
-  const [url3, setUrl3] = useState('/api/train_times/283');
-  const timerIdRef1 = useRef(null);
-  const timerIdRef2 = useRef(null);
-  const timerIdRef3 = useRef(null);
-  Logger.of('App.App.main').info('entry');
+  const [data, setData] = useState([]);
+  const [newTrainData, setNewTrainData] = useState(0);
+  const [newData, setNewData] = useState(0);
+  const [seletedStation, setSeletedStation] = useState();
+  const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 
-  const updateTimes1 = async () => {
-    Logger.of('App.App.updateTimes1').info('entry');
-    console.log(`UPDATE FUNCTION 1: ${url1}`);
-    if (url1 !== '') {
-      let tresult1 = await axios.get(url1);
-      tresult1 = processService.processApiObj(tresult1);
-      tresult1 = tresult1[0].trains;
+  const updateData = (i, property, value) => {
+    if (data.length <= i) {
+      // We shouldn't get here, maybe in this case cancel all the polls?
+      console.log(`Got invalid index ${i} for updateState when data has length ${data.length}`);
+    } else {
+      switch (property) {
+        case 'timer': {
+          data[i].timer = value;
+          break;
+        }
+        case 'result': {
+          data[i].result = value;
+          setNewTrainData(1-newTrainData);
+          break;
+        }
+      };
+    };
+  };
 
-      const routeIds = tresult1.map(time => time.route_id)
+  // We just take an index. From this, we can get the url and know
+  // which result to update
+  const getTrainInfo = async (i) => {
+    if (data.length <= i) {
+      // This is some error that we need to handle
+    } else {
+      const url = '/api/train_times/' + data[i].station_id;
+      console.log(`fetching for url: ${url}`);
+      let tresult = await axios.get(url);
+      tresult = processService.processApiObj(tresult);
+      tresult = tresult[0].trains;
 
+      const routeIds = tresult.map(time => time.route_id)
+
+      // Probably make this a global
       let colors = await axios.get('/api/routes/');
       colors = colors.data;
     
-      tresult1 = tresult1.map(time => time={...time, color: colors.find(color => color.route_id === time.route_id).color});
-      setResult1(tresult1);
-    }
+      tresult = tresult.map(time => time={...time, color: colors.find(color => color.route_id === time.route_id).color});
+      updateData(i, 'result', tresult);
+    };
   };
 
-  const updateTimes2 = async () => {
-    Logger.of('App.App.updateTimes2').info('entry');
-    console.log(`UPDATE FUNCTION 2: ${url2}`);
-    if (url2 !== '') {
-      let tresult2 = await axios.get(url2);
-      tresult2 = processService.processApiObj(tresult2);
-      tresult2 = tresult2[0].trains;
-
-      const routeIds = tresult2.map(time => time.route_id)
-
-      let colors = await axios.get('/api/routes/');
-      colors = colors.data;
-    
-      tresult2 = tresult2.map(time => time={...time, color: colors.find(color => color.route_id === time.route_id).color});
-      setResult2(tresult2);
-    }
-  };
-
-  const updateTimes3 = async () => {
-    Logger.of('App.App.updateTimes3').info('entry');
-    console.log(`UPDATE FUNCTION 3: ${url3}`);
-    if (url3 !== '') {
-      let tresult3 = await axios.get(url3);
-      tresult3 = processService.processApiObj(tresult3);
-      tresult3 = tresult3[0].trains;
-
-      const routeIds = tresult3.map(time => time.route_id)
-
-      let colors = await axios.get('/api/routes/');
-      colors = colors.data;
-    
-      tresult3 = tresult3.map(time => time={...time, color: colors.find(color => color.route_id === time.route_id).color});
-      setResult3(tresult3);
-    }
-  };
-
-  const startPolling1 = () => {
-    timerIdRef1.current = setInterval(updateTimes1, 30000);
-    console.log(`starting timer1: ${timerIdRef1.current}`);
-  };
-
-  const stopPolling1 = (Id) => {
-    console.log(`clearing timer1: ${timerIdRef1.current}`);
-    clearInterval(timerIdRef1.current)
-  };
-
-  const startPolling2 = () => {
-    timerIdRef2.current = setInterval(updateTimes2, 30000);
-    console.log(`starting timer2: ${timerIdRef2.current}`);
-  };
-
-  const stopPolling2 = (Id) => {
-    console.log(`clearing timer2: ${timerIdRef2.current}`);
-    clearInterval(timerIdRef2.current)
-  };
-
-  const startPolling3 = () => {
-    timerIdRef3.current = setInterval(updateTimes3, 30000);
-    console.log(`starting timer3: ${timerIdRef3.current}`);
-  };
-
-
-  const getStopInfo1 = (selectedStop) => {
-    Logger.of('App.App.getStopInfo').info('entry');
-    console.log(`SELECTEDSTOP: ${selectedStop.value}`);
-    stopPolling1()
-    const url_inner = '/api/train_times/' + selectedStop.value;
-    console.log(`current timer: ${timerIdRef1.current}`);
-    console.log(`setting url1 to: ${url_inner}`);
-    setUrl1(url_inner)
-  };
-
-  const getStopInfo2 = (selectedStop) => {
-    Logger.of('App.App.getStopInfo').info('entry');
-    console.log(`SELECTEDSTOP: ${selectedStop.value}`);
-    stopPolling2()
-    const url_inner = '/api/train_times/' + selectedStop.value;
-    console.log(`current timer: ${timerIdRef2.current}`);
-    console.log(`setting url2 to: ${url_inner}`);
-    setUrl2(url_inner)
-  };
-
-  useEffect(() => {
-    if (url3 !== '') {
-      console.log(`have url3 as: ${url3}`);
-      startPolling3()
-    }
-  }, [url3]);
-
-  useEffect(() => {
-    if (url1 !== '') {
-      console.log(`have url1 as: ${url1}`);
-      startPolling1()
-    }
-  }, [url1]);
-
-  useEffect(() => {
-    if (url2 !== '') {
-      console.log(`have url2 as: ${url2}`);
-      startPolling2()
-    }
-  }, [url2]);
-
-
+  // Make a request to get stop info
+  // Then process this into an array where each element has a value (int)
+  // and label (like 'Wall St')
   useEffect(() => {
     axios.get('/api/stations/')
          .then(stops_list => processService.processApiObj(stops_list))
@@ -156,62 +74,80 @@ const App = () => {
           .then(results => {setStops(results)});
   }, []);
 
+  // Wait until we have a stops list, then find the stations
+  // we always want to show
+  // If we're getting a new stops list, stop all existing polling
+  // and reset everything
   useEffect(() => {
-    if (stops !== []) {
-      const logval = stops.find((i) => i.label === 'Grand Central-42 St');
-      if (logval != null) {
-        console.log(`grand central level: ${logval.value}`);
-      };
+    if (data.length > 0) {
+      // If we get here we want to check that things haven't changed
+      // For things that have changed, we stop the polling, update
+      // the station information, reset timer and result, and then
+      // fire things off again
     };
-  }, []);
+    if (stops.length > 0) {
+      // First set the initial array with station info and null timer and result
+      setData(defaultStations.map(
+        station => {
+          const element = stops.find((i) => i.label === station);
+          console.log(station)
+          console.log(element.value)
+          return {
+            name: element.label,
+            station_id: element.value,
+            timer: null,
+            result: []
+          }
+        }
+      ));
+      setNewData(1-setNewData);
+    };
+  }, [JSON.stringify(stops)]);
+
+  const anyNullTimers = () => {
+  }
+
+  useEffect(() => {
+    for (let i = 0; i < data.length; i++) {
+      // Fire off the first query for train info for each station
+      getTrainInfo(i);
+      // Set up polling
+      updateData(i, 'timer', setInterval(getTrainInfo, 30000, i));
+      console.log(`starting timer ${i}`);
+    };
+  }, [JSON.stringify(
+    data.map(
+      d => {
+        return {
+          name: d.name,
+          station_id: d.station_id,
+          timer: d.timer
+        }
+      }
+    )
+  )]);
 
   return (
     <div>
       <h1 class='center'><i>Transit Hub</i></h1>
-    <table width="90%"><tbody><tr><td valign="top" width="30%">
-      <div>
-        Station 1
-      </div>
-      <ol>
-        {
-        tresult1 === [] ?
-        <div>No trains running at this station.</div> :
-          tresult1.map((time, i) =>
-          <Time key={i} time={time} />
-          )
-        }
-      </ol>
-    </td><td valign="top" width="30%">
-      <div>
-        Station 2 - this still implements a select
-        <Select
-          options={stops}
-          onChange={opt => getStopInfo2(opt)}
-        />
-      </div>
-      <ol>
-        {
-        tresult2 === [] ?
-        <div>No trains running at this station.</div> :
-          tresult2.map((time, i) =>
-          <Time key={i} time={time} />
-          )
-        }
-      </ol>
-    </td><td valign="top" width="30%">
-      <div>
-        Station 3
-      </div>
-      <ol>
-        {
-        tresult3 === [] ?
-        <div>No trains running at this station.</div> :
-          tresult3.map((time, i) =>
-          <Time key={i} time={time} />
-          )
-        }
-      </ol>
-    </td></tr></tbody></table>
+    <table width="90%"><tbody><tr>
+      {data.length === 0 ?
+	<td>Loading...</td> :
+        data.map((i) =>
+          <td valign="top" width="30%">{i.name}
+            <ol>
+              {
+                i.result.length === 0 ?
+                <div>Either loading or no trains running...</div> :
+                i.result.map((time, j) =>
+                  <Time key={j} time={time} />
+                )
+              }
+            </ol>
+          </td>
+        )
+      }
+    </tr></tbody></table>
     
     </div>
   )
