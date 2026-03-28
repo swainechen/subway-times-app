@@ -8,6 +8,11 @@ const App = () => {
   const [longitude, setLongitude] = useState(null);
   const [searchStops, setSearchStops] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [options, setOptions] = useState([]);
+
+  useEffect(() => {
+    getStops().then(setOptions);
+  }, []);
 
   const convertObjToArray = (obj) => {
     let arr= []
@@ -49,9 +54,11 @@ const App = () => {
   };
 
   const handleGeo = (pos) => {
-    setLatitude(pos.coords.latitude);
-    setLongitude(pos.coords.longitude);
-    console.log(`Lat: ${latitude}, Long: ${longitude}`)
+    const newLat = pos.coords.latitude;
+    const newLon = pos.coords.longitude;
+    setLatitude(newLat);
+    setLongitude(newLon);
+    console.log(`Lat: ${newLat}, Long: ${newLon}`);
   };
   
   const getTimes = async () => {
@@ -77,19 +84,13 @@ const App = () => {
     timeout: 10000
   };
 
-  const getStops = async (err) => {
-    const stops_obj = await axios.get('/api/stops/')
-    let stops_list = processApiObj(stops_obj)
-    let searchList = stops_list.map(
-      (stop => {
-        return{ 
-         value: stop.name, 
-         label: stop.name,
-        }
-      }));
-      searchList = convertObjToArray(searchList)
-      console.log(`SEARCHLIST: ${searchList[0][1]}`);
-      return searchList;
+  const getStops = async () => {
+    const stops_obj = await axios.get('/api/stops/');
+    let stops_list = processApiObj(stops_obj);
+    return stops_list.map((stop) => ({
+      value: stop.name,
+      label: stop.name,
+    }));
   };
   
   const handleErr = (err) => {
@@ -100,24 +101,22 @@ const App = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
           handleGeo(position);
-      }, function() {
-        handleErr();
+      }, function(err) {
+        handleErr(err);
       }, geoOptions);
     } else {
         // Fallback for no geolocation
-        handleErr();
+        handleErr(new Error('Geolocation not supported'));
     }  
     
   }, []);
 
-  const options = getStops();
-  console.log(`OPTIONS: ${options}`)
-
   return (
     <div>
       Stops
+      <pre>{JSON.stringify(options, null, 2)}</pre>
     </div>
-  )
+  );
 };
 
 export default App;

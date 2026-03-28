@@ -24,7 +24,7 @@ const Time = ({time }) => {
         &nbsp;
         &nbsp;
         &nbsp;
-        <span className='bannertext' style={{color: 'E13102'}}>
+        <span className='bannertext' style={{color: '#E13102'}}>
           {time_in_seconds}
         </span>
       </span>

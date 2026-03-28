@@ -1,8 +1,8 @@
 
 const convertObjToArray = (obj) => {
-  let arr= []
-    for(let i in obj)
-      arr.push([i, obj[i]]);
+  if (Array.isArray(obj)) return obj;
+  let arr = [];
+  for (let i in obj) arr.push([i, obj[i]]);
   return arr;
 };
 

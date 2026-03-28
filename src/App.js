@@ -11,7 +11,7 @@ const App = () => {
   const [data, setData] = useState([]);
   const [newTrainData, setNewTrainData] = useState(0);
   const [newData, setNewData] = useState(0);
-  const [seletedStation, setSeletedStation] = useState();
+  const [selectedStation, setSelectedStation] = useState();
   const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 
   const updateData = (i, property, value) => {
@@ -19,14 +19,15 @@ const App = () => {
       // We shouldn't get here, maybe in this case cancel all the polls?
       console.log(`Got invalid index ${i} for updateState when data has length ${data.length}`);
     } else {
+      const newData = [...data];
       switch (property) {
         case 'timer': {
-          data[i].timer = value;
+          newData[i] = { ...newData[i], timer: value };
           break;
         }
         case 'result': {
-          data[i].result = value;
-          setNewTrainData(1-newTrainData);
+          newData[i] = { ...newData[i], result: value };
+          setNewData(newData);
           break;
         }
       };
@@ -105,7 +106,8 @@ const App = () => {
   }, [JSON.stringify(stops)]);
 
   const anyNullTimers = () => {
-  }
+    return data.some(d => d.timer === null);
+  };
 
   useEffect(() => {
     for (let i = 0; i < data.length; i++) {
@@ -129,12 +131,12 @@ const App = () => {
 
   return (
     <div>
-      <h1 class='center'><i>Transit Hub</i></h1>
+      <h1 className='center'><i>Transit Hub</i></h1>
     <table width="90%"><tbody><tr>
       {data.length === 0 ?
 	<td>Loading...</td> :
         data.map((i) =>
-          <td valign="top" width="30%">{i.name}
+          <td style={{ verticalAlign: 'top', width: '30%' }}>{i.name}
             <ol>
               {
                 i.result.length === 0 ?
