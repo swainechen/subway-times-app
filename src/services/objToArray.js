@@ -1,6 +1,6 @@
 
 const convertObjToArray = (obj) => {
-  if (Array.isArray(obj)) return obj;
+  if (Array.isArray(obj.data)) return obj.data;
   let arr = [];
   for (let i in obj) arr.push([i, obj[i]]);
   return arr;

@@ -19,15 +19,14 @@ const App = () => {
       // We shouldn't get here, maybe in this case cancel all the polls?
       console.log(`Got invalid index ${i} for updateState when data has length ${data.length}`);
     } else {
-      const newData = [...data];
       switch (property) {
         case 'timer': {
-          newData[i] = { ...newData[i], timer: value };
+          data[i].timer = value;
           break;
         }
         case 'result': {
-          newData[i] = { ...newData[i], result: value };
-          setNewData(newData);
+          data[i].result = value;
+          setNewTrainData(1-newTrainData)
           break;
         }
       };
