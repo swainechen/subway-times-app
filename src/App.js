@@ -116,14 +116,15 @@ const App = () => {
       {data.length === 0 ?
 	<td>Loading...</td> :
         data.map((i) =>
-          <td style={{ verticalAlign: 'top', width: '30%' }}>{i.name}
+          <td key={i.station_id} style={{ verticalAlign: 'top', width: '30%' }}>{i.name}
             <ol>
               {
                 i.result.length === 0 ?
                 <div>Either loading or no trains running...</div> :
-                i.result.map((time, j) =>
-                  <Time key={j} time={time} />
-                )
+                i.result.map((time) => {
+                  const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
+                  return <Time key={key} time={time} />;
+                })
               }
             </ol>
           </td>
