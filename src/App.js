@@ -94,7 +94,7 @@ const App = () => {
     return () => {
       intervalIds.forEach(clearInterval);
     };
-  }, [data.length, getTrainInfo]);
+  }, [data, getTrainInfo]);
 
   return (
     <div>
