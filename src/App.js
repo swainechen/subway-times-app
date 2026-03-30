@@ -1,47 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 import Time from './components/Time';
 import processService from './services/objToArray';
 
+const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
+
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
   const [selectedStation, setSelectedStation] = useState();
-  const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 
-  const updateData = (i, property, value) => {
+  const updateData = useCallback((i, property, value) => {
     setData(prevData => {
       const newData = [...prevData];
       if (newData.length <= i) {
         console.log(`Got invalid index ${i} for updateState when data has length ${newData.length}`);
         return newData;
       }
-    newData[i] = { ...newData[i], [property]: value};
-    return newData;
+      newData[i] = { ...newData[i], [property]: value };
+      return newData;
     });
-  };
+  }, []);
 
-  // We just take an index. From this, we can get the url and know
-  // which result to update
-  const getTrainInfo = async (i) => {
-    if (data.length <= i) {
-      // This is some error that we need to handle
-    } else {
-      const url = '/api/train_times/' + data[i].station_id;
-      console.log(`fetching for url: ${url}`);
-      let tresult = await axios.get(url);
-      tresult = processService.processApiObj(tresult);
-      tresult = tresult[0].trains;
+  // We take station_id + index so this function is stable for useEffect deps
+  const getTrainInfo = useCallback(async (station_id, i) => {
+    const url = '/api/train_times/' + station_id;
+    console.log(`fetching for url: ${url}`);
+    let tresult = await axios.get(url);
+    tresult = processService.processApiObj(tresult);
+    tresult = tresult[0].trains;
 
-      // Probably make this a global
-      let colors = await axios.get('/api/routes/');
-      colors = colors.data;
-    
-      tresult = tresult.map(time => time={...time, color: colors.find(color => color.route_id === time.route_id).color});
-      updateData(i, 'result', tresult);
-    };
-  };
+    // Probably make this a global
+    let colors = await axios.get('/api/routes/');
+    colors = colors.data;
+
+    tresult = tresult.map(time => ({ ...time, color: colors.find(c => c.route_id === time.route_id)?.color || 'gray' }));
+    updateData(i, 'result', tresult);
+  }, [updateData]);
 
   // Make a request to get stop info
   // Then process this into an array where each element has a value (int)
@@ -66,48 +62,39 @@ const App = () => {
   // If we're getting a new stops list, stop all existing polling
   // and reset everything
   useEffect(() => {
-    if (data.length > 0) {
-      // If we get here we want to check that things haven't changed
-      // For things that have changed, we stop the polling, update
-      // the station information, reset timer and result, and then
-      // fire things off again
-    };
-    if (stops.length > 0) {
-      // First set the initial array with station info and null timer and result
-      setData(defaultStations.map(
-        station => {
-          const element = stops.find((i) => i.label === station);
-          console.log(station)
-          console.log(element.value)
-          return {
-            name: element.label,
-            station_id: element.value,
-            timer: null,
-            result: []
-          }
-        }
-      ));
-    };
-  }, [JSON.stringify(stops)]);
+    if (stops.length === 0) {
+      return;
+    }
+
+    setData(defaultStations.map(station => {
+      const element = stops.find(i => i.label === station);
+      if (!element) {
+        return null;
+      }
+      return {
+        name: element.label,
+        station_id: element.value,
+        timer: null,
+        result: []
+      };
+    }).filter(Boolean));
+  }, [stops]);
 
   useEffect(() => {
-    for (let i = 0; i < data.length; i++) {
-      // Fire off the first query for train info for each station
-      getTrainInfo(i);
-      // Set up polling
-      updateData(i, 'timer', setInterval(getTrainInfo, 30000, i));
-      console.log(`starting timer ${i}`);
+    if (data.length === 0) {
+      return;
+    }
+
+    const intervalIds = data.map((entry, i) => {
+      getTrainInfo(entry.station_id, i);
+      const timerId = setInterval(() => getTrainInfo(entry.station_id, i), 30000);
+      return timerId;
+    });
+
+    return () => {
+      intervalIds.forEach(clearInterval);
     };
-  }, [JSON.stringify(
-    data.map(
-      d => {
-        return {
-          name: d.name,
-          station_id: d.station_id,
-        }
-      }
-    )
-  )]);
+  }, [data.length, getTrainInfo]);
 
   return (
     <div>
