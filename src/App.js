@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Select from 'react-select';
-import { Logger } from 'react-logger-lib';
 
 import Time from './components/Time';
 import processService from './services/objToArray';
@@ -9,28 +7,19 @@ import processService from './services/objToArray';
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [newTrainData, setNewTrainData] = useState(0);
-  const [newData, setNewData] = useState(0);
   const [selectedStation, setSelectedStation] = useState();
   const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 
   const updateData = (i, property, value) => {
-    if (data.length <= i) {
-      // We shouldn't get here, maybe in this case cancel all the polls?
-      console.log(`Got invalid index ${i} for updateState when data has length ${data.length}`);
-    } else {
-      switch (property) {
-        case 'timer': {
-          data[i].timer = value;
-          break;
-        }
-        case 'result': {
-          data[i].result = value;
-          setNewTrainData(1-newTrainData)
-          break;
-        }
-      };
-    };
+    setData(prevData => {
+      const newData = [...prevData];
+      if (newData.length <= i) {
+        console.log(`Got invalid index ${i} for updateState when data has length ${newData.length}`);
+        return newData;
+      }
+    newData[i] = { ...newData[i], [property]: value};
+    return newData;
+    });
   };
 
   // We just take an index. From this, we can get the url and know
@@ -44,8 +33,6 @@ const App = () => {
       let tresult = await axios.get(url);
       tresult = processService.processApiObj(tresult);
       tresult = tresult[0].trains;
-
-      const routeIds = tresult.map(time => time.route_id)
 
       // Probably make this a global
       let colors = await axios.get('/api/routes/');
@@ -100,13 +87,8 @@ const App = () => {
           }
         }
       ));
-      setNewData(1-setNewData);
     };
   }, [JSON.stringify(stops)]);
-
-  const anyNullTimers = () => {
-    return data.some(d => d.timer === null);
-  };
 
   useEffect(() => {
     for (let i = 0; i < data.length; i++) {
@@ -122,7 +104,6 @@ const App = () => {
         return {
           name: d.name,
           station_id: d.station_id,
-          timer: d.timer
         }
       }
     )
