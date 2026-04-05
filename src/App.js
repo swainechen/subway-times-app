@@ -109,8 +109,8 @@ const App = () => {
   const stationOptions = [
     { value: '', label: 'Select station' },
     ...(stops.length > 0
-      ? stops
-      : defaultStations.map((station) => ({ value: station, label: station })))
+      ? [...stops].sort((a, b) => a.label.localeCompare(b.label))
+      : defaultStations.map((station) => ({ value: station, label: station })).sort((a, b) => a.label.localeCompare(b.label)))
   ];
 
   return (
