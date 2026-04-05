@@ -20,6 +20,34 @@ h1 {
   color:white;
 }
 
+.station-selector {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.station-select-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.station-select-group label {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.station-select-group select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 2px solid #0039A6;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
 ul {
   padding-bottom: 95px;
 }

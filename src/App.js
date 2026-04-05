@@ -9,7 +9,7 @@ const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [selectedStation, setSelectedStation] = useState();
+  const [displayedStations, setDisplayedStations] = useState(defaultStations);
 
   const updateData = useCallback((i, property, value) => {
     setData(prevData => {
@@ -66,7 +66,7 @@ const App = () => {
       return;
     }
 
-    setData(defaultStations.map(station => {
+    setData(displayedStations.map(station => {
       const element = stops.find(i => i.label === station);
       if (!element) {
         return null;
@@ -78,7 +78,7 @@ const App = () => {
         result: []
       };
     }).filter(Boolean));
-  }, [stops]);
+  }, [stops, displayedStations]);
 
   useEffect(() => {
     if (data.length === 0) {
@@ -96,9 +96,33 @@ const App = () => {
     };
   }, [data, getTrainInfo]);
 
+  const handleStationChange = (index, newStationName) => {
+    const newStations = [...displayedStations];
+    newStations[index] = newStationName;
+    setDisplayedStations(newStations);
+  };
+
   return (
     <div>
       <h1 className='center'><i>Transit Hub</i></h1>
+      <div className='station-selector'>
+        {displayedStations.map((station, index) => (
+          <div key={index} className='station-select-group'>
+            <label htmlFor={`station-select-${index}`}>Station {index + 1}:</label>
+            <select
+              id={`station-select-${index}`}
+              value={station}
+              onChange={(e) => handleStationChange(index, e.target.value)}
+            >
+              {stops.map((stop) => (
+                <option key={stop.value} value={stop.label}>
+                  {stop.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
       <table className="stations-table"><tbody><tr>
         {data.length === 0 ?
           <td>Loading...</td> :
