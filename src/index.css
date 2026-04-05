@@ -70,12 +70,18 @@ ul {
   width: auto;
   max-width: 90%;
   table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 20px 0;
+}
+
+.stations-table td {
+  padding: 0 10px;
 }
 
 .station-columns {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 4px;
 }
 
 .station-column {
