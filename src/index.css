@@ -29,7 +29,7 @@ ul {
 }
 
 .time {
-  display: inline;
+  display: inline-block;
   vertical-align: middle;
   text-align: center;
 }
@@ -85,8 +85,8 @@ ul {
 }
 
 .station-column {
-  flex: 0 0 260px;
-  min-width: 260px;
+  flex: 0 0 230px;
+  min-width: 230px;
   background-color: #eef2ff;
   border: 1px solid #d5d9e9;
   border-radius: 12px;
