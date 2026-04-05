@@ -109,7 +109,11 @@ const App = () => {
               groups[color].push(time);
               return groups;
             }, {});
-            const colorOrder = Object.keys(trainsByColor);
+            const colorOrderWithLabels = Object.keys(trainsByColor).map(color => {
+              const routeLabel = Array.from(new Set(trainsByColor[color].map(time => time.route_id))).sort().join('/');
+              return { color, routeLabel };
+            }).sort((a, b) => a.routeLabel.localeCompare(b.routeLabel));
+            const colorOrder = colorOrderWithLabels.map(item => item.color);
 
             return (
               <td key={i.station_id} style={{ verticalAlign: 'top' }}>
