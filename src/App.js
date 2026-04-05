@@ -9,7 +9,7 @@ const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [displayedStations, setDisplayedStations] = useState(defaultStations);
+  const [displayedStations, setDisplayedStations] = useState([...defaultStations, '']);
 
   const updateData = useCallback((i, property, value) => {
     setData(prevData => {
@@ -68,16 +68,13 @@ const App = () => {
 
     setData(displayedStations.map(station => {
       const element = stops.find(i => i.label === station);
-      if (!element) {
-        return null;
-      }
       return {
-        name: element.label,
-        station_id: element.value,
+        name: station || '',
+        station_id: element?.value || null,
         timer: null,
         result: []
       };
-    }).filter(Boolean));
+    }));
   }, [stops, displayedStations]);
 
   useEffect(() => {
@@ -85,10 +82,13 @@ const App = () => {
       return;
     }
 
-    const intervalIds = data.map((entry, i) => {
+    const intervalIds = data.flatMap((entry, i) => {
+      if (!entry.station_id) {
+        return [];
+      }
       getTrainInfo(entry.station_id, i);
       const timerId = setInterval(() => getTrainInfo(entry.station_id, i), 30000);
-      return timerId;
+      return [timerId];
     });
 
     return () => {
@@ -99,12 +99,18 @@ const App = () => {
   const handleStationChange = (index, newStationName) => {
     const newStations = [...displayedStations];
     newStations[index] = newStationName;
+    if (index === newStations.length - 1 && newStationName) {
+      newStations.push('');
+    }
     setDisplayedStations(newStations);
   };
 
-  const stationOptions = stops.length > 0
-    ? stops
-    : defaultStations.map((station) => ({ value: station, label: station }));
+  const stationOptions = [
+    { value: '', label: 'Select station' },
+    ...(stops.length > 0
+      ? stops
+      : defaultStations.map((station) => ({ value: station, label: station })))
+  ];
 
   return (
     <div>
@@ -141,9 +147,11 @@ const App = () => {
                     ))}
                   </select>
                 </div>
-                {i.result.length === 0 ?
-                  <div>Either loading or no trains running...</div> :
-                  <div className="station-columns">
+                {!i.station_id ?
+                  <div className="station-empty">Select a station</div> :
+                  i.result.length === 0 ?
+                    <div>Either loading or no trains running...</div> :
+                    <div className="station-columns">
                     {colorOrder.map((color) => {
                       const routeLabel = Array.from(new Set(trainsByColor[color].map(time => time.route_id))).sort().join('/');
                       return (
