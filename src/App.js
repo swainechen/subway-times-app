@@ -9,7 +9,7 @@ const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [displayedStations, setDisplayedStations] = useState([...defaultStations, '']);
+  const [displayedStations, setDisplayedStations] = useState(['Fulton St', '']);
 
   const updateData = useCallback((station_id, property, value) => {
     setData(prevData => prevData.map(entry =>
