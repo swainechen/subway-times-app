@@ -102,6 +102,10 @@ const App = () => {
     setDisplayedStations(newStations);
   };
 
+  const stationOptions = stops.length > 0
+    ? stops
+    : defaultStations.map((station) => ({ value: station, label: station }));
+
   return (
     <div>
       <h1 className='center'><i>Transit Hub</i></h1>
@@ -114,7 +118,7 @@ const App = () => {
               value={station}
               onChange={(e) => handleStationChange(index, e.target.value)}
             >
-              {stops.map((stop) => (
+              {stationOptions.map((stop) => (
                 <option key={stop.value} value={stop.label}>
                   {stop.label}
                 </option>
