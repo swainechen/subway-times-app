@@ -99,26 +99,42 @@ const App = () => {
   return (
     <div>
       <h1 className='center'><i>Transit Hub</i></h1>
-    <table width="90%"><tbody><tr>
-      {data.length === 0 ?
-	<td>Loading...</td> :
-        data.map((i) =>
-          <td key={i.station_id} style={{ verticalAlign: 'top', width: '30%' }}>{i.name}
-            <ol>
-              {
-                i.result.length === 0 ?
-                <div>Either loading or no trains running...</div> :
-                i.result.map((time) => {
-                  const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
-                  return <Time key={key} time={time} />;
-                })
-              }
-            </ol>
-          </td>
-        )
-      }
-    </tr></tbody></table>
-    
+      <table width="90%"><tbody><tr>
+        {data.length === 0 ?
+          <td>Loading...</td> :
+          data.map((i) => {
+            const trainsByColor = i.result.reduce((groups, time) => {
+              const color = time.color || 'gray';
+              groups[color] = groups[color] || [];
+              groups[color].push(time);
+              return groups;
+            }, {});
+            const colorOrder = Object.keys(trainsByColor);
+
+            return (
+              <td key={i.station_id} style={{ verticalAlign: 'top', width: '30%' }}>
+                <div className="station-name">{i.name}</div>
+                {i.result.length === 0 ?
+                  <div>Either loading or no trains running...</div> :
+                  <div className="station-columns">
+                    {colorOrder.map((color) => (
+                      <div key={color} className="station-column">
+                        <div className="station-column-header" style={{ backgroundColor: color }}>
+                          {color.toUpperCase()}
+                        </div>
+                        {trainsByColor[color].map((time) => {
+                          const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
+                          return <Time key={key} time={time} />;
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                }
+              </td>
+            );
+          })
+        }
+      </tr></tbody></table>
     </div>
   )
 };
