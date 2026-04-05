@@ -109,28 +109,10 @@ const App = () => {
   return (
     <div>
       <h1 className='center'><i>Transit Hub</i></h1>
-      <div className='station-selector'>
-        {displayedStations.map((station, index) => (
-          <div key={index} className='station-select-group'>
-            <label htmlFor={`station-select-${index}`}>Station {index + 1}:</label>
-            <select
-              id={`station-select-${index}`}
-              value={station}
-              onChange={(e) => handleStationChange(index, e.target.value)}
-            >
-              {stationOptions.map((stop) => (
-                <option key={stop.value} value={stop.label}>
-                  {stop.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
-      </div>
       <table className="stations-table"><tbody><tr>
         {data.length === 0 ?
           <td>Loading...</td> :
-          data.map((i) => {
+          data.map((i, index) => {
             const trainsByColor = i.result.reduce((groups, time) => {
               const color = time.color || 'gray';
               groups[color] = groups[color] || [];
@@ -145,7 +127,19 @@ const App = () => {
 
             return (
               <td key={i.station_id} style={{ verticalAlign: 'top' }}>
-                <div className="station-name">{i.name}</div>
+                <div className="station-name">
+                  <select
+                    id={`station-select-${index}`}
+                    value={i.name}
+                    onChange={(e) => handleStationChange(index, e.target.value)}
+                  >
+                    {stationOptions.map((stop) => (
+                      <option key={stop.value} value={stop.label}>
+                        {stop.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 {i.result.length === 0 ?
                   <div>Either loading or no trains running...</div> :
                   <div className="station-columns">
