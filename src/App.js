@@ -11,20 +11,13 @@ const App = () => {
   const [data, setData] = useState([]);
   const [displayedStations, setDisplayedStations] = useState([...defaultStations, '']);
 
-  const updateData = useCallback((i, property, value) => {
-    setData(prevData => {
-      const newData = [...prevData];
-      if (newData.length <= i) {
-        console.log(`Got invalid index ${i} for updateState when data has length ${newData.length}`);
-        return newData;
-      }
-      newData[i] = { ...newData[i], [property]: value };
-      return newData;
-    });
+  const updateData = useCallback((station_id, property, value) => {
+    setData(prevData => prevData.map(entry =>
+      entry.station_id === station_id ? { ...entry, [property]: value } : entry
+    ));
   }, []);
 
-  // We take station_id + index so this function is stable for useEffect deps
-  const getTrainInfo = useCallback(async (station_id, i) => {
+  const getTrainInfo = useCallback(async (station_id) => {
     const url = '/api/train_times/' + station_id;
     console.log(`fetching for url: ${url}`);
     let tresult = await axios.get(url);
@@ -36,7 +29,7 @@ const App = () => {
     colors = colors.data;
 
     tresult = tresult.map(time => ({ ...time, color: colors.find(c => c.route_id === time.route_id)?.color || 'gray' }));
-    updateData(i, 'result', tresult);
+    updateData(station_id, 'result', tresult);
   }, [updateData]);
 
   // Make a request to get stop info
@@ -82,12 +75,12 @@ const App = () => {
       return;
     }
 
-    const intervalIds = data.flatMap((entry, i) => {
+    const intervalIds = data.flatMap((entry) => {
       if (!entry.station_id) {
         return [];
       }
-      getTrainInfo(entry.station_id, i);
-      const timerId = setInterval(() => getTrainInfo(entry.station_id, i), 30000);
+      getTrainInfo(entry.station_id);
+      const timerId = setInterval(() => getTrainInfo(entry.station_id), 30000);
       return [timerId];
     });
 
@@ -140,7 +133,7 @@ const App = () => {
             const colorOrder = colorOrderWithLabels.map(item => item.color);
 
             return (
-              <td key={i.station_id} style={{ verticalAlign: 'top' }}>
+              <td key={i.station_id || index} style={{ verticalAlign: 'top' }}>
                 <div className="station-name">
                   <select
                     className="station-select"
