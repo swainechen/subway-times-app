@@ -16,8 +16,8 @@ const Time = ({time }) => {
         &nbsp;
         {
           time.direction === 'N' ?
-          <span className='bannertext' style={{color: 'green'}}>Uptown</span> :
-          <span className='bannertext' style={{color: 'green'}}>Downtown</span>
+          <span className='bannertext' style={{color: 'green'}}>Up</span> :
+          <span className='bannertext' style={{color: 'green'}}>Dn</span>
         }
         &nbsp;
         &nbsp;

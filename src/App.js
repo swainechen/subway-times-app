@@ -99,7 +99,7 @@ const App = () => {
   return (
     <div>
       <h1 className='center'><i>Transit Hub</i></h1>
-      <table width="90%"><tbody><tr>
+      <table className="stations-table"><tbody><tr>
         {data.length === 0 ?
           <td>Loading...</td> :
           data.map((i) => {
@@ -112,22 +112,25 @@ const App = () => {
             const colorOrder = Object.keys(trainsByColor);
 
             return (
-              <td key={i.station_id} style={{ verticalAlign: 'top', width: '30%' }}>
+              <td key={i.station_id} style={{ verticalAlign: 'top' }}>
                 <div className="station-name">{i.name}</div>
                 {i.result.length === 0 ?
                   <div>Either loading or no trains running...</div> :
                   <div className="station-columns">
-                    {colorOrder.map((color) => (
-                      <div key={color} className="station-column">
-                        <div className="station-column-header" style={{ backgroundColor: color }}>
-                          {color.toUpperCase()}
+                    {colorOrder.map((color) => {
+                      const routeLabel = Array.from(new Set(trainsByColor[color].map(time => time.route_id))).sort().join('/');
+                      return (
+                        <div key={color} className="station-column">
+                          <div className="station-column-header" style={{ backgroundColor: color }}>
+                            {routeLabel}
+                          </div>
+                          {trainsByColor[color].map((time) => {
+                            const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
+                            return <Time key={key} time={time} />;
+                          })}
                         </div>
-                        {trainsByColor[color].map((time) => {
-                          const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
-                          return <Time key={key} time={time} />;
-                        })}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 }
               </td>

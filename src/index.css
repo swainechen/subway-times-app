@@ -61,6 +61,12 @@ ul {
   margin-bottom: 12px;
 }
 
+.stations-table {
+  width: auto;
+  max-width: 90%;
+  table-layout: auto;
+}
+
 .station-columns {
   display: flex;
   flex-wrap: wrap;
@@ -68,8 +74,8 @@ ul {
 }
 
 .station-column {
-  flex: 1 1 170px;
-  min-width: 165px;
+  flex: 0 0 170px;
+  min-width: 170px;
   background-color: #eef2ff;
   border: 1px solid #d5d9e9;
   border-radius: 12px;
