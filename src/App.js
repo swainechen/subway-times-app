@@ -105,6 +105,14 @@ const App = () => {
     setDisplayedStations(newStations);
   };
 
+  const handleRemoveStation = (index) => {
+    const newStations = displayedStations.filter((_, i) => i !== index);
+    if (!newStations.includes('')) {
+      newStations.push('');
+    }
+    setDisplayedStations(newStations);
+  };
+
   const stationOptions = [
     { value: '', label: 'Select station' },
     ...(stops.length > 0
@@ -146,6 +154,16 @@ const App = () => {
                       </option>
                     ))}
                   </select>
+                  {i.name && i.name !== '' && (
+                    <button
+                      type="button"
+                      className="station-remove"
+                      onClick={() => handleRemoveStation(index)}
+                      aria-label={`Remove ${i.name}`}
+                    >
+                      🗑️
+                    </button>
+                  )}
                 </div>
                 {!i.station_id ?
                   <div className="station-empty">Select a station</div> :
