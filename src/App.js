@@ -129,6 +129,7 @@ const App = () => {
               <td key={i.station_id} style={{ verticalAlign: 'top' }}>
                 <div className="station-name">
                   <select
+                    className="station-select"
                     id={`station-select-${index}`}
                     value={i.name}
                     onChange={(e) => handleStationChange(index, e.target.value)}

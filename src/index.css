@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Syne+Tactile&display=swap');
 
 body {
-  font-family: Rubik;
+  font-family: Helvetica, Arial, sans-serif;
   padding: 20px;
   background-color:rgb(187, 207, 235);
 }
@@ -39,9 +39,11 @@ h1 {
   font-size: 1rem;
 }
 
-.station-select-group select {
+.station-select-group select,
+.station-select {
   padding: 8px 12px;
-  font-size: 1rem;
+  font-size: 30px;
+  line-height: 1.1;
   border: 2px solid #0039A6;
   border-radius: 4px;
   background-color: white;
@@ -80,7 +82,7 @@ ul {
   display: inline-block;
   vertical-align: middle;
   font-size: 24px;
-  font-family: 'Roboto Mono';
+  font-family: inherit;
 }
 
 .station-name {
