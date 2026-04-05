@@ -154,7 +154,11 @@ const App = () => {
                       onClick={() => handleRemoveStation(index)}
                       aria-label={`Remove ${i.name}`}
                     >
-                      🗑️
+                      <img
+                        src="https://cdn.creazilla.com/icons/3272128/trash-icon-sm.png"
+                        alt="Remove station"
+                        className="station-remove-icon"
+                      />
                     </button>
                   )}
                 </div>
