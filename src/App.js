@@ -13,8 +13,9 @@ const App = () => {
   const [displayedStations, setDisplayedStations] = useState(['Fulton St', '']);
 
   const updateData = useCallback((station_id, property, value) => {
+    const stationIdString = station_id?.toString();
     setData(prevData => prevData.map(entry =>
-      entry.station_id === station_id ? { ...entry, [property]: value } : entry
+      entry.station_id?.toString() === stationIdString ? { ...entry, [property]: value } : entry
     ));
   }, []);
 
@@ -65,7 +66,7 @@ const App = () => {
       const element = stops.find(i => i.label === station);
       return {
         name: station || '',
-        station_id: element?.value || null,
+        station_id: element?.value?.toString() || null,
         timer: null,
         result: [],
         lastUpdated: null
