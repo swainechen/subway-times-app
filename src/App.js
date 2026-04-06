@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 import Time from './components/Time';
+import LastUpdated from './components/LastUpdated';
 import processService from './services/objToArray';
 
 const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
@@ -30,7 +31,7 @@ const App = () => {
 
     tresult = tresult.map(time => ({ ...time, color: colors.find(c => c.route_id === time.route_id)?.color || 'gray' }));
     updateData(station_id, 'result', tresult);
-    updateData(station_id, 'lastUpdated', new Date().toLocaleTimeString());
+    updateData(station_id, 'lastUpdated', Date.now());
   }, [updateData]);
 
   // Make a request to get stop info
@@ -176,7 +177,7 @@ const App = () => {
                           <div className="station-column-header" style={{ backgroundColor: color }}>
                             {routeLabel}
                           </div>
-                          {i.lastUpdated && <div className="last-updated">Last updated: {i.lastUpdated}</div>}
+                          <LastUpdated lastUpdated={i.lastUpdated} />
                           {trainsByColor[color].map((time) => {
                             const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
                             return <Time key={key} time={time} />;
