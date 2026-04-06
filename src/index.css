@@ -153,3 +153,10 @@ ul {
   margin-bottom: 10px;
   text-transform: capitalize;
 }
+
+.last-updated {
+  font-size: 12px;
+  text-align: center;
+  color: #666;
+  margin-bottom: 8px;
+}

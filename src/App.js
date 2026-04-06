@@ -30,6 +30,7 @@ const App = () => {
 
     tresult = tresult.map(time => ({ ...time, color: colors.find(c => c.route_id === time.route_id)?.color || 'gray' }));
     updateData(station_id, 'result', tresult);
+    updateData(station_id, 'lastUpdated', new Date().toLocaleTimeString());
   }, [updateData]);
 
   // Make a request to get stop info
@@ -65,7 +66,8 @@ const App = () => {
         name: station || '',
         station_id: element?.value || null,
         timer: null,
-        result: []
+        result: [],
+        lastUpdated: null
       };
     }));
   }, [stops, displayedStations]);
@@ -174,6 +176,7 @@ const App = () => {
                           <div className="station-column-header" style={{ backgroundColor: color }}>
                             {routeLabel}
                           </div>
+                          {i.lastUpdated && <div className="last-updated">Last updated: {i.lastUpdated}</div>}
                           {trainsByColor[color].map((time) => {
                             const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
                             return <Time key={key} time={time} />;
