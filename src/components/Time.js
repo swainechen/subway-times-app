@@ -5,7 +5,10 @@ import processService from '../services/objToArray';
 
 const Time = ({time }) => {
 
-  const time_in_seconds = Math.round(time.time/60).toString() + " mins";
+  const minutes = Math.floor(time.time / 60);
+  const seconds = Math.round(time.time % 60);
+  const timeDisplay = minutes < 5 ? `${minutes} m ${seconds} s` : `${minutes} mins`;
+
 	return(
     <div>
       <span className="time">
@@ -25,7 +28,7 @@ const Time = ({time }) => {
         &nbsp;
         &nbsp;
         <span className='bannertext' style={{color: '#E13102'}}>
-          {time_in_seconds}
+          {timeDisplay}
         </span>
       </span>
       <br></br>
