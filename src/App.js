@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 
 import Time from './components/Time';
@@ -73,24 +73,26 @@ const App = () => {
     }));
   }, [stops, displayedStations]);
 
+  const intervalIdsRef = useRef({});
+  const activeStationIds = data.filter(entry => entry.station_id).map(entry => entry.station_id).join(',');
+
   useEffect(() => {
-    if (data.length === 0) {
+    if (!activeStationIds) {
       return;
     }
 
-    const intervalIds = data.flatMap((entry) => {
-      if (!entry.station_id) {
-        return [];
-      }
-      getTrainInfo(entry.station_id);
-      const timerId = setInterval(() => getTrainInfo(entry.station_id), 30000);
-      return [timerId];
+    Object.values(intervalIdsRef.current).forEach(clearInterval);
+    intervalIdsRef.current = {};
+
+    activeStationIds.split(',').forEach((stationId) => {
+      getTrainInfo(stationId);
+      intervalIdsRef.current[stationId] = setInterval(() => getTrainInfo(stationId), 30000);
     });
 
     return () => {
-      intervalIds.forEach(clearInterval);
+      Object.values(intervalIdsRef.current).forEach(clearInterval);
     };
-  }, [data, getTrainInfo]);
+  }, [activeStationIds, getTrainInfo]);
 
   const handleStationChange = (index, newStationName) => {
     const newStations = [...displayedStations];
