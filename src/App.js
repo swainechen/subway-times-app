@@ -160,20 +160,18 @@ const App = () => {
                       </option>
                     ))}
                   </select>
-                  {i.name && i.name !== '' && (
-                    <button
-                      type="button"
-                      className="station-remove"
-                      onClick={() => handleRemoveStation(index)}
-                      aria-label={`Remove ${i.name}`}
-                    >
-                      <img
-                        src="https://cdn.creazilla.com/icons/3272128/trash-icon-sm.png"
-                        alt="Remove station"
-                        className="station-remove-icon"
-                      />
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="station-remove"
+                    onClick={() => handleRemoveStation(index)}
+                    aria-label={`Remove ${i.name || 'station'}`}
+                  >
+                    <img
+                      src="https://cdn.creazilla.com/icons/3272128/trash-icon-sm.png"
+                      alt="Remove station"
+                      className="station-remove-icon"
+                    />
+                  </button>
                 </div>
                 {!i.station_id ?
                   <div className="station-empty">Select a station</div> :
