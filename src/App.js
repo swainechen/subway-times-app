@@ -188,7 +188,7 @@ const App = () => {
             );
           })
         }
-        <td>
+        <td className="add-station-td">
           <button
             type="button"
             onClick={() => setDisplayedStations([...displayedStations, ''])}

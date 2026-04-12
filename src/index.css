@@ -132,6 +132,10 @@ ul {
   background-color: #f0f4ff;
 }
 
+.add-station-td {
+  vertical-align: top;
+}
+
 .stations-table {
   width: auto;
   max-width: 90%;
