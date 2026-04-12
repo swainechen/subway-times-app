@@ -150,7 +150,7 @@ ul {
 
 .station-columns {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
 }
 
