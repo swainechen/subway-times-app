@@ -58,7 +58,7 @@ const App = () => {
   // If we're getting a new stops list, stop all existing polling
   // and reset everything
   useEffect(() => {
-    if (stops.length === 0) {
+    if (stops.length === 0 || data.length > 0) {
       return;
     }
 
@@ -72,7 +72,7 @@ const App = () => {
         lastUpdated: null
       };
     }));
-  }, [stops, displayedStations]);
+  }, [stops]);
 
   const intervalIdsRef = useRef({});
   const activeStationIds = data.filter(entry => entry.station_id).map(entry => entry.station_id).join(',');
@@ -99,11 +99,24 @@ const App = () => {
     const newStations = [...displayedStations];
     newStations[index] = newStationName;
     setDisplayedStations(newStations);
+
+    const element = stops.find(i => i.label === newStationName);
+    const newData = [...data];
+    newData[index] = {
+      ...newData[index],
+      name: newStationName,
+      station_id: element?.value?.toString() || null,
+      result: [],
+      lastUpdated: null
+    };
+    setData(newData);
   };
 
   const handleRemoveStation = (index) => {
     const newStations = displayedStations.filter((_, i) => i !== index);
     setDisplayedStations(newStations);
+    const newData = data.filter((_, i) => i !== index);
+    setData(newData);
   };
 
   const stationOptions = [
@@ -191,7 +204,10 @@ const App = () => {
         <td className="add-station-td">
           <button
             type="button"
-            onClick={() => setDisplayedStations([...displayedStations, ''])}
+            onClick={() => {
+              setDisplayedStations([...displayedStations, '']);
+              setData([...data, { name: '', station_id: null, timer: null, result: [], lastUpdated: null }]);
+            }}
             className="add-station-button"
           >
             +
