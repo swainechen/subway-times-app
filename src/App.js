@@ -10,7 +10,7 @@ const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [displayedStations, setDisplayedStations] = useState(['Fulton St', '']);
+  const [displayedStations, setDisplayedStations] = useState(['Fulton St']);
 
   const updateData = useCallback((station_id, property, value) => {
     const stationIdString = station_id?.toString();
@@ -98,17 +98,11 @@ const App = () => {
   const handleStationChange = (index, newStationName) => {
     const newStations = [...displayedStations];
     newStations[index] = newStationName;
-    if (index === newStations.length - 1 && newStationName) {
-      newStations.push('');
-    }
     setDisplayedStations(newStations);
   };
 
   const handleRemoveStation = (index) => {
     const newStations = displayedStations.filter((_, i) => i !== index);
-    if (!newStations.includes('')) {
-      newStations.push('');
-    }
     setDisplayedStations(newStations);
   };
 
@@ -194,6 +188,15 @@ const App = () => {
             );
           })
         }
+        <td>
+          <button
+            type="button"
+            onClick={() => setDisplayedStations([...displayedStations, ''])}
+            className="add-station-button"
+          >
+            +
+          </button>
+        </td>
       </tr></tbody></table>
     </div>
   )

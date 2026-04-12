@@ -117,6 +117,21 @@ ul {
   display: block;
 }
 
+.add-station-button {
+  padding: 8px 12px;
+  font-size: 30px;
+  line-height: 1.1;
+  border: 2px solid #0039A6;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  color: #0039A6;
+}
+
+.add-station-button:hover {
+  background-color: #f0f4ff;
+}
+
 .stations-table {
   width: auto;
   max-width: 90%;
