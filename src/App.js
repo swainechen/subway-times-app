@@ -173,6 +173,7 @@ const App = () => {
                     />
                   </button>
                 </div>
+                {i.lastUpdated && <LastUpdated lastUpdated={i.lastUpdated} />}
                 {!i.station_id ?
                   <div className="station-empty">Select a station</div> :
                   i.result.length === 0 ?
@@ -185,7 +186,6 @@ const App = () => {
                           <div className="station-column-header" style={{ backgroundColor: color }}>
                             {routeLabel}
                           </div>
-                          <LastUpdated lastUpdated={i.lastUpdated} />
                           {trainsByColor[color].map((time) => {
                             const key = `${time.route_id}-${time.direction}-${Math.round(time.time)}`;
                             return <Time key={key} time={time} />;

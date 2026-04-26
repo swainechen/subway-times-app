@@ -6,7 +6,7 @@ import './index.css';
 import App from './App';
 
 // This needs to get updated with the url and port for where the mta-api app is serving. For ex. http://localhost:5000/
-axios.defaults.baseURL = '';
+axios.defaults.baseURL = 'http://192.168.50.114:5280';
 ReactDOM.render(
     <App />
 	,
