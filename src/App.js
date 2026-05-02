@@ -5,7 +5,7 @@ import Time from './components/Time';
 import LastUpdated from './components/LastUpdated';
 import processService from './services/objToArray';
 
-const defaultStations = ['Fulton St', 'Chambers St', 'Clark St'];
+const defaultStations = ['Fulton St (2345ACJZ)', 'Chambers St (123)', 'Clark St (23)'];
 
 const App = () => {
   const [stops, setStops] = useState([]);
