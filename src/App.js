@@ -10,7 +10,7 @@ const defaultStations = ['Fulton St (2345ACJZ)', 'Chambers St (123)', 'Clark St 
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [displayedStations, setDisplayedStations] = useState(['Fulton St']);
+  const [displayedStations, setDisplayedStations] = useState(['Fulton St (2345ACJZ)']);
   const [errors, setErrors] = useState({});
   const [loadError, setLoadError] = useState(null);
   const routeColorsRef = useRef(null);
