@@ -11,6 +11,9 @@ const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
   const [displayedStations, setDisplayedStations] = useState(['Fulton St']);
+  const [errors, setErrors] = useState({});
+  const [loadError, setLoadError] = useState(null);
+  const routeColorsRef = useRef(null);
 
   const updateData = useCallback((station_id, property, value) => {
     const stationIdString = station_id?.toString();
@@ -19,21 +22,51 @@ const App = () => {
     ));
   }, []);
 
+  const clearError = useCallback((station_id) => {
+    const stationIdString = station_id?.toString();
+    setErrors(prev => {
+      const next = { ...prev };
+      delete next[stationIdString];
+      return next;
+    });
+  }, []);
+
   const getTrainInfo = useCallback(async (station_id) => {
     const url = '/api/train_times/' + station_id;
     console.log(`fetching for url: ${url}`);
-    let tresult = await axios.get(url);
-    tresult = processService.processApiObj(tresult);
-    tresult = tresult[0].trains;
 
-    // Probably make this a global
-    let colors = await axios.get('/api/routes/');
-    colors = colors.data;
+    try {
+      let tresult = await axios.get(url);
+      tresult = processService.processApiObj(tresult);
+      tresult = tresult[0].trains;
 
-    tresult = tresult.map(time => ({ ...time, color: colors.find(c => c.route_id === time.route_id)?.color || 'gray' }));
-    updateData(station_id, 'result', tresult);
-    updateData(station_id, 'lastUpdated', Date.now());
-  }, [updateData]);
+      if (!routeColorsRef.current) {
+        try {
+          const response = await axios.get('/api/routes/');
+          routeColorsRef.current = response.data;
+        } catch (colorErr) {
+          console.warn('Failed to load route colors, continuing with default colors:', colorErr);
+          routeColorsRef.current = [];
+        }
+      }
+
+      const colors = routeColorsRef.current || [];
+      tresult = tresult.map(time => ({
+        ...time,
+        color: colors.find(c => c.route_id === time.route_id)?.color || 'gray'
+      }));
+
+      updateData(station_id, 'result', tresult);
+      updateData(station_id, 'lastUpdated', Date.now());
+      clearError(station_id);
+    } catch (err) {
+      console.error(`Failed to fetch train info for station ${station_id}:`, err);
+      setErrors(prev => ({
+        ...prev,
+        [station_id?.toString()]: err?.message || 'Network error fetching data'
+      }));
+    }
+  }, [updateData, clearError]);
 
   // Make a request to get stop info
   // Then process this into an array where each element has a value (int)
@@ -50,7 +83,11 @@ const App = () => {
                   }
                 )
               ))
-          .then(results => {setStops(results)});
+          .then(results => {setStops(results)})
+          .catch(err => {
+            console.error('Failed to load station list:', err);
+            setLoadError('Could not load stations. Please refresh or try again later.');
+          });
   }, []);
 
   // Wait until we have a stops list, then find the stations
@@ -129,6 +166,7 @@ const App = () => {
   return (
     <div>
       <h1 className='center'><i>Transit Hub</i></h1>
+      {loadError && <div className="global-error">{loadError}</div>}
       <table className="stations-table"><tbody><tr>
         {data.length === 0 ?
           <td>Loading...</td> :
@@ -173,7 +211,16 @@ const App = () => {
                     />
                   </button>
                 </div>
-                {i.lastUpdated && <LastUpdated lastUpdated={i.lastUpdated} />}
+                {i.lastUpdated && (
+                  <>
+                    <LastUpdated lastUpdated={i.lastUpdated} />
+                    {errors[i.station_id]?.length > 0 && (
+                      <div className="station-error-inline">
+                        Error: {errors[i.station_id]}. Retrying in 30s.
+                      </div>
+                    )}
+                  </>
+                )}
                 {!i.station_id ?
                   <div className="station-empty">Select a station</div> :
                   i.result.length === 0 ?

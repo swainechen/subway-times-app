@@ -179,3 +179,10 @@ ul {
   color: #666;
   margin-bottom: 8px;
 }
+
+.station-error-inline {
+  font-size: 12px;
+  text-align: center;
+  color: #a00;
+  margin-bottom: 10px;
+}
