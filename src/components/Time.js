@@ -20,7 +20,13 @@ const Time = ({time }) => {
         {
           time.direction === 'N' ?
           <span className='bannertext' style={{color: 'green'}}>Up</span> :
-          <span className='bannertext' style={{color: 'green'}}>Dn</span>
+          time.direction === 'S' ?
+          <span className='bannertext' style={{color: 'green'}}>Dn</span> :
+          time.direction === 'I' ?
+          <span className='bannertext' style={{color: 'green'}}>In{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}</span> :
+          time.direction === 'O' ?
+          <span className='bannertext' style={{color: 'green'}}>Out{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}</span> :
+          <span className='bannertext' style={{color: 'green'}}>{time.direction}</span>
         }
         &nbsp;
         &nbsp;
