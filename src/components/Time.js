@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-import processService from '../services/objToArray';
+import React from 'react';
 
 const Time = ({time }) => {
 

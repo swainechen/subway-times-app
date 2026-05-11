@@ -12,4 +12,6 @@ const processApiObj = (obj) => {
   return arr;
 };
 
-export default { processApiObj };
+const processService = { processApiObj };
+
+export default processService;

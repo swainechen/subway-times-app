@@ -109,7 +109,7 @@ const App = () => {
         lastUpdated: null
       };
     }));
-  }, [stops]);
+  }, [stops, displayedStations, data.length]);
 
   const intervalIdsRef = useRef({});
   const activeStationIds = data.filter(entry => entry.station_id).map(entry => entry.station_id).join(',');
