@@ -18,18 +18,50 @@ const App = () => {
   const formatStationName = (name, routeColors) => {
     // Format route codes in parentheses by grouping them by color
     // e.g., "Fulton St (2345ACJZ)" with colors -> "Fulton St (23/45/AC/JZ)"
-    return name.replace(/\(([A-Z0-9]+)\)/, (match, routes) => {
-      const routeList = routes.split('');
+    return name.replace(/\(([A-Z0-9]+)\)/, (match, routeString) => {
+      // Parse the route string by matching against known route IDs (without prefix)
+      const routeList = [];
+      let remaining = routeString;
+      
+      // Create a map of route ID without prefix to route object for faster lookup
+      const routeMap = {};
+      (routeColors || []).forEach(route => {
+        // Strip S- or F- prefix to get the actual route identifier
+        const routeId = route.route_id.replace(/^[SF]-/, '');
+        routeMap[routeId] = route;
+      });
+      
+      // Sort by length (longest first) to match multi-char routes first
+      const sortedRouteIds = Object.keys(routeMap).sort((a, b) => b.length - a.length);
+      
+      // Greedily match route IDs from the string
+      while (remaining.length > 0) {
+        let matched = false;
+        for (const routeId of sortedRouteIds) {
+          if (remaining.startsWith(routeId)) {
+            routeList.push(routeId);
+            remaining = remaining.slice(routeId.length);
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          // If no match found, take first character as a fallback
+          routeList.push(remaining[0]);
+          remaining = remaining.slice(1);
+        }
+      }
+      
       const routesByColor = {};
       
       // Group routes by their color
-      routeList.forEach(route => {
-        const routeInfo = routeColors.find(c => c.route_id === route);
+      routeList.forEach(routeId => {
+        const routeInfo = routeMap[routeId];
         const color = routeInfo?.color || 'unknown';
         if (!routesByColor[color]) {
           routesByColor[color] = [];
         }
-        routesByColor[color].push(route);
+        routesByColor[color].push(routeId);
       });
       
       // Sort color groups and join routes within each group
@@ -81,8 +113,7 @@ const App = () => {
         const routeInfo = colors.find(c => c.route_id === time.route_id);
         return {
           ...time,
-          color: routeInfo?.color || 'gray',
-          route_type: routeInfo?.route_type || 'SUBWAY'
+          color: routeInfo?.color || 'gray'
         };
       });
 

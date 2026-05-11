@@ -9,9 +9,10 @@ const Time = ({time }) => {
   // Determine direction display based on route type
   const getDirectionDisplay = () => {
     const direction = time.direction;
-    const routeType = time.route_type || 'SUBWAY';
+    // Determine if this is a ferry or subway based on route_id prefix
+    const isFerry = time.route_id && time.route_id.startsWith('F-');
 
-    if (routeType === 'FERRY') {
+    if (isFerry) {
       // For ferries, use In/Out
       if (direction === 'I' || direction === 'W') {
         return (
