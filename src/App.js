@@ -32,7 +32,7 @@ const App = () => {
   }, []);
 
   const getTrainInfo = useCallback(async (station_id) => {
-    const url = '/api/train_times/' + station_id;
+    const url = '/api/times/' + station_id;
     console.log(`fetching for url: ${url}`);
 
     try {
