@@ -6,6 +6,64 @@ const Time = ({time }) => {
   const seconds = Math.round(time.time % 60);
   const timeDisplay = minutes < 5 ? `${minutes} m ${seconds} s` : `${minutes} mins`;
 
+  // Determine direction display based on route type
+  const getDirectionDisplay = () => {
+    const direction = time.direction;
+    const routeType = time.route_type || 'SUBWAY';
+
+    if (routeType === 'FERRY') {
+      // For ferries, use In/Out
+      if (direction === 'I' || direction === 'W') {
+        return (
+          <span className='bannertext' style={{color: 'green'}}>
+            In{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}
+          </span>
+        );
+      }
+      if (direction === 'O' || direction === 'E') {
+        return (
+          <span className='bannertext' style={{color: 'green'}}>
+            Out{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}
+          </span>
+        );
+      }
+      // Fallback for unknown ferry directions
+      return (
+        <span className='bannertext' style={{color: 'green'}}>
+          {direction}
+        </span>
+      );
+    } else {
+      // For subways, use Up/Down
+      if (direction === 'N') {
+        return <span className='bannertext' style={{color: 'green'}}>Up</span>;
+      }
+      if (direction === 'S') {
+        return <span className='bannertext' style={{color: 'green'}}>Dn</span>;
+      }
+      if (direction === 'I') {
+        return (
+          <span className='bannertext' style={{color: 'green'}}>
+            In{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}
+          </span>
+        );
+      }
+      if (direction === 'O') {
+        return (
+          <span className='bannertext' style={{color: 'green'}}>
+            Out{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}
+          </span>
+        );
+      }
+      // Fallback for unknown directions
+      return (
+        <span className='bannertext' style={{color: 'green'}}>
+          {direction}
+        </span>
+      );
+    }
+  };
+
 	return(
     <div>
       <span className="time">
@@ -14,17 +72,7 @@ const Time = ({time }) => {
         </b>
         &nbsp;
         &nbsp;
-        {
-          time.direction === 'N' ?
-          <span className='bannertext' style={{color: 'green'}}>Up</span> :
-          time.direction === 'S' ?
-          <span className='bannertext' style={{color: 'green'}}>Dn</span> :
-          time.direction === 'I' ?
-          <span className='bannertext' style={{color: 'green'}}>In{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}</span> :
-          time.direction === 'O' ?
-          <span className='bannertext' style={{color: 'green'}}>Out{time.next_stop || time.terminal ? ` to ${time.next_stop || time.terminal}` : ''}</span> :
-          <span className='bannertext' style={{color: 'green'}}>{time.direction}</span>
-        }
+        {getDirectionDisplay()}
         &nbsp;
         &nbsp;
         &nbsp;

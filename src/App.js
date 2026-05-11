@@ -5,15 +5,41 @@ import Time from './components/Time';
 import LastUpdated from './components/LastUpdated';
 import processService from './services/objToArray';
 
-const defaultStations = ['Fulton St (2345ACJZ)', 'Chambers St (123)', 'Clark St (23)'];
+const defaultStations = ['Fulton St (23/45/AC/JZ)', 'Chambers St (123)', 'Clark St (23)'];
 
 const App = () => {
   const [stops, setStops] = useState([]);
   const [data, setData] = useState([]);
-  const [displayedStations, setDisplayedStations] = useState(['Fulton St (2345ACJZ)']);
+  const [displayedStations, setDisplayedStations] = useState(['Fulton St (23/45/AC/JZ)']);
   const [errors, setErrors] = useState({});
   const [loadError, setLoadError] = useState(null);
   const routeColorsRef = useRef(null);
+
+  const formatStationName = (name, routeColors) => {
+    // Format route codes in parentheses by grouping them by color
+    // e.g., "Fulton St (2345ACJZ)" with colors -> "Fulton St (23/45/AC/JZ)"
+    return name.replace(/\(([A-Z0-9]+)\)/, (match, routes) => {
+      const routeList = routes.split('');
+      const routesByColor = {};
+      
+      // Group routes by their color
+      routeList.forEach(route => {
+        const routeInfo = routeColors.find(c => c.route_id === route);
+        const color = routeInfo?.color || 'unknown';
+        if (!routesByColor[color]) {
+          routesByColor[color] = [];
+        }
+        routesByColor[color].push(route);
+      });
+      
+      // Sort color groups and join routes within each group
+      const groupedRoutes = Object.values(routesByColor)
+        .map(routes => routes.join(''))
+        .sort();
+      
+      return `(${groupedRoutes.join('/')})`;
+    });
+  };
 
   const updateData = useCallback((station_id, property, value) => {
     const stationIdString = station_id?.toString();
@@ -51,10 +77,14 @@ const App = () => {
       }
 
       const colors = routeColorsRef.current || [];
-      tresult = tresult.map(time => ({
-        ...time,
-        color: colors.find(c => c.route_id === time.route_id)?.color || 'gray'
-      }));
+      tresult = tresult.map(time => {
+        const routeInfo = colors.find(c => c.route_id === time.route_id);
+        return {
+          ...time,
+          color: routeInfo?.color || 'gray',
+          route_type: routeInfo?.route_type || 'SUBWAY'
+        };
+      });
 
       updateData(station_id, 'result', tresult);
       updateData(station_id, 'lastUpdated', Date.now());
@@ -68,26 +98,35 @@ const App = () => {
     }
   }, [updateData, clearError]);
 
-  // Make a request to get stop info
+  // Make a request to get stop info and route colors
   // Then process this into an array where each element has a value (int)
   // and label (like 'Wall St')
   useEffect(() => {
-    axios.get('/api/stations/')
-         .then(stops_list => processService.processApiObj(stops_list))
-         .then(stops_list => stops_list.map(
-                (stop => {
-                    return { 
-                    value: stop.station_id, 
-                    label: stop.name,
-                    }
-                  }
-                )
-              ))
-          .then(results => {setStops(results)})
-          .catch(err => {
-            console.error('Failed to load station list:', err);
-            setLoadError('Could not load stations. Please refresh or try again later.');
-          });
+    // First load routes to get color mappings
+    const loadStations = async () => {
+      try {
+        // Load routes if not already loaded
+        if (!routeColorsRef.current) {
+          const routesResponse = await axios.get('/api/routes/');
+          routeColorsRef.current = routesResponse.data;
+        }
+
+        const stops_list = await axios.get('/api/stations/');
+        const processedStops = processService.processApiObj(stops_list);
+        
+        const formattedStops = processedStops.map(stop => ({
+          value: stop.station_id,
+          label: formatStationName(stop.name, routeColorsRef.current || [])
+        }));
+        
+        setStops(formattedStops);
+      } catch (err) {
+        console.error('Failed to load station list:', err);
+        setLoadError('Could not load stations. Please refresh or try again later.');
+      }
+    };
+    
+    loadStations();
   }, []);
 
   // Wait until we have a stops list, then find the stations
