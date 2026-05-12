@@ -59,10 +59,9 @@ ul {
 }
 
 .time {
-  display: inline-block;
-  vertical-align: middle;
+  display: block;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .circle {
@@ -83,6 +82,20 @@ ul {
   vertical-align: middle;
   font-size: 24px;
   font-family: inherit;
+}
+
+.ferry-display {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.ferry-main {
+  font-size: 24px;
+}
+
+.ferry-dest {
+  font-size: 18px;
+  color: green;
 }
 
 .station-name {

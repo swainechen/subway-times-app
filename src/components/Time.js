@@ -66,22 +66,43 @@ const Time = ({time }) => {
 
 	return(
     <div>
-      <span className="time">
+      <div className="time">
         <b className="circle" style={{backgroundColor: time.color}}>
           {time.route_id}
         </b>
         &nbsp;
         &nbsp;
-        {getDirectionDisplay()}
-        &nbsp;
-        &nbsp;
-        &nbsp;
-        &nbsp;
-        &nbsp;
-        <span className='bannertext' style={{color: '#E13102'}}>
-          {timeDisplay}
-        </span>
-      </span>
+        {time.source === 'ferry' ? (
+          <div className="ferry-display">
+            <div className="ferry-main">
+              <span className='bannertext' style={{color: 'green'}}>
+                {time.direction === 'O' || time.direction === 'E' ? 'Out' : 'In'}
+              </span>
+              &nbsp;
+              <span className='bannertext' style={{color: '#E13102'}}>
+                {timeDisplay}
+              </span>
+            </div>
+            {(time.next_stop || time.terminal) && (
+              <div className="ferry-dest">
+                To {time.next_stop || time.terminal}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {getDirectionDisplay()}
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            <span className='bannertext' style={{color: '#E13102'}}>
+              {timeDisplay}
+            </span>
+          </>
+        )}
+      </div>
       <br></br>
       <br></br>
 
