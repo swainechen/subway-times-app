@@ -9,11 +9,10 @@ const Time = ({time }) => {
   // Determine direction display based on route type
   const getDirectionDisplay = () => {
     const direction = time.direction;
-    // Determine if this is a ferry or subway based on route_id prefix
-    const isFerry = time.route_id && time.route_id.startsWith('F-');
+    const isFerry = time.source === 'ferry';
 
     if (isFerry) {
-      // For ferries, use In/Out
+      // For ferries, use In/Out and show the next stop if available
       if (direction === 'I' || direction === 'W') {
         return (
           <span className='bannertext' style={{color: 'green'}}>
@@ -28,10 +27,10 @@ const Time = ({time }) => {
           </span>
         );
       }
-      // Fallback for unknown ferry directions
+      // Fallback for ferry direction
       return (
         <span className='bannertext' style={{color: 'green'}}>
-          {direction}
+          {time.next_stop || time.terminal ? `Ferry to ${time.next_stop || time.terminal}` : 'Ferry'}
         </span>
       );
     } else {
