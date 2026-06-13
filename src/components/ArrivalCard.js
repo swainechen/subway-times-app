@@ -34,14 +34,14 @@ const TRANSIT_COLORS = {
 
 function ArrivalCard({ arrival }) {
   const { route_id, terminal, time, source } = arrival;
+  const minutesAway = Math.floor(time / 60);
 
   // FIX: Using .trim() instead of .strip() to clean string padding natively in JS
   const backgroundColor = TRANSIT_COLORS[String(route_id).toUpperCase().trim()] || '#333333';
   const textColor = '#ffffff';
 
   // Calculate clean minutes display text frame values
-  const minutesAway = Math.max(0, Math.floor(time / 60));
-  const timeLabel = minutesAway === 0 ? 'Due' : `${minutesAway} min`;
+  const timeLabel = time < 120 ? `${Math.round(time)} sec` : `${Math.floor(time / 60)} min`;
 
   return (
     <div className="arrival-item" style={{
@@ -72,10 +72,14 @@ function ArrivalCard({ arrival }) {
           {route_id}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontWeight: '500', color: '#2c3e50' }}>To: {terminal}</span>
-          <span style={{ fontSize: '12px', color: '#95a5a6', textTransform: 'capitalize' }}>
-            {source} Service
+          <span style={{ fontWeight: '500', color: '#2c3e50' }}>
+            {terminal === 'Uptown' ? 'Up' : terminal === 'Downtown' ? 'Dn' : terminal}
           </span>
+          {source === 'ferry' && (
+            <span style={{ fontSize: '12px', color: '#95a5a6', textTransform: 'capitalize' }}>
+              {source} Service
+            </span>
+          )}
         </div>
       </div>
       

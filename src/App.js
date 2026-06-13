@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getStationTimes } from './services/api';
 import ArrivalCard from './components/ArrivalCard';
+import LastUpdated from './components/LastUpdated';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5280/api';
 
@@ -11,6 +12,7 @@ function App() {
     return saved ? JSON.parse(saved) : ['229', '87']; // Default to Fulton St Complex and Wall St Pier 11
   });
   const [dashboardData, setDashboardData] = useState([]);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [selectedStationKey, setSelectedStationKey] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +40,7 @@ function App() {
   const refreshDashboard = async () => {
     if (trackedStations.length === 0) {
       setDashboardData([]);
+      setLastUpdated(null);
       setLoading(false);
       return;
     }
@@ -45,6 +48,7 @@ function App() {
       const promises = trackedStations.map(id => getStationTimes(id));
       const results = await Promise.all(promises);
       setDashboardData(results);
+      setLastUpdated(Date.now());
     } catch (err) {
       console.error("Dashboard refresh cycle error:", err);
     } finally {
@@ -94,7 +98,7 @@ function App() {
         >
           {allStations.map(station => (
             <option key={station.station_id} value={station.station_id}>
-              {station.name} ({station.source === 'ferry' ? 'Ferry' : 'Subway'})
+              {station.name} {station.source === 'ferry' ? '- Ferry' : '- Subway'}
             </option>
           ))}
         </select>
@@ -135,8 +139,11 @@ function App() {
               }}
             >
               {/* Station Head Container */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '2px solid #edf0f2', paddingBottom: '8px' }}>
-                <h2 style={{ fontSize: '1.25em', color: '#2c3e50', margin: 0, fontWeight: '700' }}>{station.name}</h2>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', borderBottom: '2px solid #edf0f2', paddingBottom: '8px', width: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <h2 style={{ fontSize: '1.25em', color: '#2c3e50', margin: 0, fontWeight: '700' }}>{station.name} {station.source === 'ferry' ? '- Ferry' : '- Subway'}</h2>
+                  <LastUpdated lastUpdated={lastUpdated} />
+                </div>
                 <button onClick={() => handleRemoveStation(station.station_id)} style={{ padding: '4px 8px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>
                   Remove
                 </button>
