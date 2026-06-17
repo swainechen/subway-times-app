@@ -1,62 +1,87 @@
 import React from 'react';
 
-// Unified Master Hex Color Index Map for Clean Route IDs
-const TRANSIT_COLORS = {
-  // Red Line Family
-  '1': '#EE352E', '2': '#EE352E', '3': '#EE352E',
-  // Green Line Family
-  '4': '#00933C', '5': '#00933C', '6': '#00933C',
-  // Blue Line Family
-  'A': '#0039A6', 'C': '#0039A6', 'E': '#0039A6',
-  // Orange Line Family
-  'B': '#FF6319', 'D': '#FF6319', 'F': '#FF6319', 'M': '#FF6319',
-  // Yellow Line Family
-  'N': '#FCCC0A', 'Q': '#FCCC0A', 'R': '#FCCC0A', 'W': '#FCCC0A',
-  // Light Green Line
-  'G': '#6CBE45',
-  // Gray Line
-  'L': '#A7A9AC',
-  // Brown Line Family
-  'J': '#996633', 'Z': '#996633',
-  // Staten Island Rail
-  'SI': '#1c355e', 'SIR': '#1c355e',
-  
-  // NYC Ferry Service Variant Codes
-  'ER': '#00a3e0',   // East River Baseline
-  'ERA': '#00a3e0',  // East River Variant A
-  'ERB': '#00a3e0',  // East River Variant B
-  'RW': '#e94b8a',   // Rockaway Line
-  'SB': '#f58220',   // South Brooklyn Line
-  'AST': '#b9dc0c',  // Astoria Line
-  'SG': '#f15a24',   // Soundview Line
-  'GI': '#92278f'    // Governors Island Shuttle
-};
-
 function ArrivalCard({ arrival }) {
-  const { route_id, terminal, time, source } = arrival;
-  const minutesAway = Math.floor(time / 60);
+  // 1. Determine the correct time to display based on the transit source
+  let displaySeconds = arrival.time_seconds; // Default fallback (Arrival)
+  let timeLabel = "";
 
-  // FIX: Using .trim() instead of .strip() to clean string padding natively in JS
-  const backgroundColor = TRANSIT_COLORS[String(route_id).toUpperCase().trim()] || '#333333';
-  const textColor = '#ffffff';
+  if (arrival.source === 'ferry') {
+    // Prefer departure time for ferries. If a boat terminates here and has no departure, fall back to arrival.
+    if (arrival.departure_time_seconds !== null) {
+      displaySeconds = arrival.departure_time_seconds;
+      timeLabel = "DEP";
+    } else if (arrival.arrival_time_seconds !== null) {
+      displaySeconds = arrival.arrival_time_seconds;
+      timeLabel = "ARR";
+    }
+  }
 
-  // Calculate clean minutes display text frame values
-  const timeLabel = time < 120 ? `${Math.round(time)} sec` : `${Math.floor(time / 60)} min`;
+  // 2. Convert seconds to minutes
+  const minutes = Math.floor(displaySeconds / 60);
+  
+  // Format the display string (e.g., "Due" if 0 mins, otherwise "X min")
+  const timeString = minutes <= 0 ? 'Due' : `${minutes} min`;
+
+  // Determine badge colors based on route
+  // Routes are matched exactly - no substring matching
+  const getBadgeColor = (routeId) => {
+    const routeColors = {
+      // Subway routes - individual entries for A, B, C, E, etc.
+      'A': { bg: '#0039A6', text: '#fff' },
+      'C': { bg: '#0039A6', text: '#fff' },
+      'E': { bg: '#0039A6', text: '#fff' },
+      'B': { bg: '#FF6319', text: '#fff' },
+      'D': { bg: '#FF6319', text: '#fff' },
+      'F': { bg: '#FF6319', text: '#fff' },
+      'M': { bg: '#FF6319', text: '#fff' },
+      'G': { bg: '#6CBE45', text: '#fff' },
+      'J': { bg: '#996633', text: '#fff' },
+      'Z': { bg: '#996633', text: '#fff' },
+      'L': { bg: '#A7A9AC', text: '#fff' },
+      'N': { bg: '#FCCC0A', text: '#000' },
+      'Q': { bg: '#FCCC0A', text: '#000' },
+      'R': { bg: '#FCCC0A', text: '#000' },
+      'W': { bg: '#FCCC0A', text: '#000' },
+      '1': { bg: '#EE352E', text: '#fff' },
+      '2': { bg: '#EE352E', text: '#fff' },
+      '3': { bg: '#EE352E', text: '#fff' },
+      '4': { bg: '#00933C', text: '#fff' },
+      '5': { bg: '#00933C', text: '#fff' },
+      '6': { bg: '#00933C', text: '#fff' },
+      '7': { bg: '#B933AD', text: '#fff' },
+      // Ferry routes
+      'AS': { bg: '#FF6B00', text: '#fff' },
+      'ER': { bg: '#00839C', text: '#000' },
+      'ERA': { bg: '#00839C', text: '#000' },
+      'ERB': { bg: '#00839C', text: '#000' },
+      'GI': { bg: '#9795A0', text: '#fff' },
+      'RES': { bg: '#00A1E1', text: '#fff' },
+      'RS': { bg: '#4E008E', text: '#fff' },
+      'RWS': { bg: '#00A1E1', text: '#fff' },
+      'SB': { bg: '#FFD100', text: '#fff' },
+      'SG': { bg: '#D0006F', text: '#fff' }
+    };
+
+    // Return exact match, or default color
+    return routeColors[routeId] || { bg: '#34495e', text: '#fff' };
+  };
+
+  const badgeStyles = getBadgeColor(arrival.route_id);
 
   return (
-    <div className="arrival-item" style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '12px 16px',
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      padding: '12px 16px', 
       borderBottom: '1px solid #eee',
       backgroundColor: '#fff'
     }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {/* The Badge Circle */}
-        <div className="route-badge" style={{
-          backgroundColor: backgroundColor,
-          color: textColor,
+        {/* Route Badge */}
+        <div style={{
+          backgroundColor: badgeStyles.bg,
+          color: badgeStyles.text,
           borderRadius: '50%',
           width: '36px',
           height: '36px',
@@ -66,25 +91,37 @@ function ArrivalCard({ arrival }) {
           alignItems: 'center',
           justifyContent: 'center',
           fontWeight: 'bold',
-          marginRight: '12px', // FIX: Corrected from margin_right to camelCase marginRight
-          fontSize: '16px'
+          marginRight: '12px',
+          fontSize: '14px'
         }}>
-          {route_id}
+          {arrival.route_id}
         </div>
+        
+        {/* Destination & Source Label */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontWeight: '500', color: '#2c3e50' }}>
-            {terminal === 'Uptown' ? 'Up' : terminal === 'Downtown' ? 'Dn' : terminal}
+          <span style={{ fontWeight: '500', color: '#2c3e50', fontSize: '14px' }}>
+            {arrival.terminal}
           </span>
-          {source === 'ferry' && (
-            <span style={{ fontSize: '12px', color: '#95a5a6', textTransform: 'capitalize' }}>
-              {source} Service
-            </span>
-          )}
+          <span style={{ fontSize: '11px', color: '#95a5a6', fontWeight: 'bold', textTransform: 'uppercase' }}>
+            {arrival.source}
+          </span>
         </div>
       </div>
       
-      <div style={{ fontSize: '16px', fontWeight: 'bold', color: minutesAway <= 2 ? '#e74c3c' : '#2c3e50' }}>
-        {timeLabel}
+      {/* Time Display with optional ARR/DEP label for ferries */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <div style={{ 
+          fontSize: '15px', 
+          fontWeight: 'bold', 
+          color: minutes <= 3 ? '#e74c3c' : '#2c3e50' // Turn red if 3 mins or less
+        }}>
+          {timeString}
+        </div>
+        {timeLabel && (
+          <div style={{ fontSize: '10px', color: '#7f8c8d', marginTop: '2px' }}>
+            {timeLabel}
+          </div>
+        )}
       </div>
     </div>
   );

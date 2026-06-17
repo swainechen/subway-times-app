@@ -163,12 +163,12 @@ function App() {
                       key={lineLabel} 
                       style={{ 
                         flex: '0 0 260px',
-                        width: '220px',
+                        width: '260px',
                         border: '1px solid #eef0f1', 
                         borderRadius: '6px', 
                         overflow: 'hidden',
                         backgroundColor: '#fafbfc',
-                        marginRight: '8px'
+                        marginRight: '12px'
                       }}
                     >
                       {/* Column Subhead Title */}
