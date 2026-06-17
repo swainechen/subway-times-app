@@ -100,10 +100,10 @@ function ArrivalCard({ arrival }) {
         {/* Destination & Source Label */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontWeight: '500', color: '#2c3e50', fontSize: '14px' }}>
-            {arrival.terminal}
+            {arrival.source === 'ferry' ? arrival.terminal : arrival.direction}
           </span>
-          <span style={{ fontSize: '11px', color: '#95a5a6', fontWeight: 'bold', textTransform: 'uppercase' }}>
-            {arrival.source}
+          <span style={{ fontSize: '11px', color: '#95a5a6', fontWeight: 'bold' }}>
+            {arrival.source === 'ferry' ? 'Ferry' : arrival.terminal}
           </span>
         </div>
       </div>
