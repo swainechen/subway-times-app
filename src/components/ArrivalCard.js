@@ -51,9 +51,9 @@ function ArrivalCard({ arrival }) {
       '7': { bg: '#B933AD', text: '#fff' },
       // Ferry routes
       'AS': { bg: '#FF6B00', text: '#fff' },
-      'ER': { bg: '#00839C', text: '#000' },
-      'ERA': { bg: '#00839C', text: '#000' },
-      'ERB': { bg: '#00839C', text: '#000' },
+      'ER': { bg: '#00839C', text: '#fff' },
+      'ERA': { bg: '#00839C', text: '#fff' },
+      'ERB': { bg: '#00839C', text: '#fff' },
       'GI': { bg: '#9795A0', text: '#fff' },
       'RES': { bg: '#00A1E1', text: '#fff' },
       'RS': { bg: '#4E008E', text: '#fff' },
