@@ -98,7 +98,7 @@ function App() {
         >
           {allStations.map(station => (
             <option key={station.station_id} value={station.station_id}>
-              {station.name} {station.source === 'ferry' ? '- Ferry' : '- Subway'}
+              {station.name} {station.line_label ? `(${station.line_label})` : `(${station.source === 'ferry' ? 'Ferry' : 'Subway'})`}
             </option>
           ))}
         </select>
@@ -141,7 +141,9 @@ function App() {
               {/* Station Head Container */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', borderBottom: '2px solid #edf0f2', paddingBottom: '8px', width: '100%' }}>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <h2 style={{ fontSize: '1.25em', color: '#2c3e50', margin: 0, fontWeight: '700' }}>{station.name} {station.source === 'ferry' ? '- Ferry' : '- Subway'}</h2>
+                  <h2 style={{ fontSize: '1.25em', color: '#2c3e50', margin: 0, fontWeight: '700' }}>
+                    {station.name} {station.source === 'ferry' ? '- Ferry' : '- Subway'} {station.lineLabel ? `(${station.lineLabel})` : ''}
+                  </h2>
                   <LastUpdated lastUpdated={lastUpdated} />
                 </div>
                 <button onClick={() => handleRemoveStation(station.station_id)} style={{ padding: '4px 8px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>

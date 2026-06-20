@@ -28,10 +28,20 @@ export const getStationTimes = async (stationId) => {
       };
     }
     
+    // Build line label from lines dict
+    // e.g., "G" or "123/456/ACE/JZ"
+    const lines = data.lines || {};
+    let lineLabel = null;
+    if (lines && Object.keys(lines).length > 0) {
+      lineLabel = Object.keys(lines).sort().join('/');
+    }
+
     return {
       station_id: data.station_id || stationId,
       name: data.name || 'Transit Node',
-      lines: data.lines || {},
+      source: data.source || 'subway',
+      lineLabel: lineLabel,
+      lines: lines,
       trains: data.trains || []
     };
     
