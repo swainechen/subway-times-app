@@ -37,7 +37,7 @@ export const getStationTimes = async (stationId) => {
     }
 
     return {
-      station_id: data.station_id || stationId,
+      station_id: stationId,
       name: data.name || 'Transit Node',
       source: data.source || 'subway',
       lineLabel: lineLabel,

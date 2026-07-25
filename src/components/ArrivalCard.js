@@ -1,26 +1,12 @@
 import React from 'react';
 
 function ArrivalCard({ arrival }) {
-  // 1. Determine the correct time to display based on the transit source
-  let displaySeconds = arrival.time_seconds; // Default fallback (Arrival)
-  let timeLabel = "";
-
-  if (arrival.source === 'ferry') {
-    // Prefer departure time for ferries. If a boat terminates here and has no departure, fall back to arrival.
-    if (arrival.departure_time_seconds !== null) {
-      displaySeconds = arrival.departure_time_seconds;
-      timeLabel = "DEP";
-    } else if (arrival.arrival_time_seconds !== null) {
-      displaySeconds = arrival.arrival_time_seconds;
-      timeLabel = "ARR";
-    }
-  }
-
-  // 2. Convert seconds to minutes
-  const minutes = Math.floor(displaySeconds / 60);
-  
-  // Format the display string (e.g., "Due" if 0 mins, otherwise "X min")
-  const timeString = minutes <= 0 ? 'Due' : `${minutes} min`;
+  // Convert seconds to minutes
+  const secondsToMinutes = (seconds) => {
+    if (seconds === null || seconds === undefined) return null;
+    const minutes = Math.floor(seconds / 60);
+    return minutes <= 0 ? 'Due' : `${minutes} min`;
+  };
 
   // Determine badge colors based on route
   // Routes are matched exactly - no substring matching
@@ -51,11 +37,12 @@ function ArrivalCard({ arrival }) {
       '7': { bg: '#B933AD', text: '#fff' },
       // Ferry routes
       'AS': { bg: '#FF6B00', text: '#fff' },
-      'ER': { bg: '#00839C', text: '#fff' },
+      'ER': { bg: '#00839C', text: '#fff' },  // Group for ERA/ERB
       'ERA': { bg: '#00839C', text: '#fff' },
       'ERB': { bg: '#00839C', text: '#fff' },
       'GI': { bg: '#9795A0', text: '#fff' },
       'RES': { bg: '#00A1E1', text: '#fff' },
+      'RR': { bg: '#FF8672', text: '#fff' },
       'RS': { bg: '#4E008E', text: '#fff' },
       'RWS': { bg: '#00A1E1', text: '#fff' },
       'SB': { bg: '#FFD100', text: '#fff' },
@@ -68,12 +55,21 @@ function ArrivalCard({ arrival }) {
 
   const badgeStyles = getBadgeColor(arrival.route_id);
 
+  // Format time for display
+  const arrivalTimeString = secondsToMinutes(arrival.arrival_time_seconds);
+  const departureTimeString = secondsToMinutes(arrival.departure_time_seconds);
+
+  // For ferries arriving at terminus with no subsequent departure, show no row
+  if (arrival.source === 'ferry' && !arrival.next_stop) {
+    return null;
+  }
+
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      padding: '12px 16px', 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '12px 16px',
       borderBottom: '1px solid #eee',
       backgroundColor: '#fff'
     }}>
@@ -96,30 +92,42 @@ function ArrivalCard({ arrival }) {
         }}>
           {arrival.route_id}
         </div>
-        
+
         {/* Destination & Source Label */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontWeight: '500', color: '#2c3e50', fontSize: '14px' }}>
-            {arrival.source === 'ferry' ? arrival.terminal : arrival.direction}
+            {arrival.source === 'ferry' && arrival.next_stop ? arrival.next_stop : arrival.direction }
           </span>
-          <span style={{ fontSize: '11px', color: '#95a5a6', fontWeight: 'bold' }}>
-            {arrival.source === 'ferry' ? 'Ferry' : arrival.terminal}
-          </span>
+          {arrival.source === 'ferry' && arrival.terminal && (
+            <span style={{ fontSize: '12px', color: '#2c3e50', fontWeight: '500' }}>
+              To {arrival.terminal}
+            </span>
+          )}
         </div>
       </div>
-      
-      {/* Time Display with optional ARR/DEP label for ferries */}
+
+      {/* Time Display */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-        <div style={{ 
-          fontSize: '15px', 
-          fontWeight: 'bold', 
-          color: minutes <= 3 ? '#e74c3c' : '#2c3e50' // Turn red if 3 mins or less
-        }}>
-          {timeString}
-        </div>
-        {timeLabel && (
-          <div style={{ fontSize: '10px', color: '#7f8c8d', marginTop: '2px' }}>
-            {timeLabel}
+        {arrival.source === 'ferry' ? (
+          <>
+            {departureTimeString && (
+              <div style={{
+                fontSize: '15px',
+                fontWeight: 'bold',
+                color: departureTimeString === 'Due' ? '#e74c3c' : '#2c3e50'
+              }}>
+                {departureTimeString}
+              </div>
+            )}
+          </>
+        ) : (
+          // Subway: show single time (unchanged behavior)
+          <div style={{
+            fontSize: '15px',
+            fontWeight: 'bold',
+            color: arrivalTimeString === 'Due' ? '#e74c3c' : '#2c3e50'
+          }}>
+            {arrivalTimeString}
           </div>
         )}
       </div>

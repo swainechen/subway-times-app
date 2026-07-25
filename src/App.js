@@ -9,7 +9,7 @@ function App() {
   const [allStations, setAllStations] = useState([]);
   const [trackedStations, setTrackedStations] = useState(() => {
     const saved = localStorage.getItem('tracked_transit_stations');
-    return saved ? JSON.parse(saved) : ['229', '87']; // Default to Fulton St Complex and Wall St Pier 11
+    return saved ? JSON.parse(saved) : ['subway-229', 'ferry-87']; // Default to Fulton St Complex and Wall St Pier 11
   });
   const [dashboardData, setDashboardData] = useState([]);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -67,12 +67,12 @@ function App() {
     const selectedOption = allStations.find(s => s.station_id === selectedStationKey);
     if (!selectedOption) return;
 
-    const rawId = selectedOption.raw_id;
-    if (trackedStations.includes(rawId)) {
+    const stationId = selectedOption.station_id;
+    if (trackedStations.includes(stationId)) {
       alert("This station is already being tracked on your dashboard!");
       return;
     }
-    setTrackedStations([...trackedStations, rawId]);
+    setTrackedStations([...trackedStations, stationId]);
   };
 
   const handleRemoveStation = (stationId) => {
