@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { DropdownHeader, Rating } from 'semantic-ui-react';
 import SelectSearch from 'react-select-search';
+
 
 const App = () => {
   const [latitude, setLatitude] = useState(null);
@@ -9,6 +9,7 @@ const App = () => {
   const [searchStops, setSearchStops] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState([]);
+  const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
   useEffect(() => {
     getStops().then(setOptions);
@@ -34,8 +35,8 @@ const App = () => {
     var dLon = lon2-lon1;
 
     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+      Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c;
     return d;
   };
@@ -45,7 +46,6 @@ const App = () => {
     stops_list = stops_list.sort(function(a, b) {
       var keyA = a.distance,
         keyB = b.distance;
-      // Compare the 2 dates
       if (keyA < keyB) return -1;
       if (keyA > keyB) return 1;
       return 0;
@@ -60,17 +60,17 @@ const App = () => {
     setLongitude(newLon);
     console.log(`Lat: ${newLat}, Long: ${newLon}`);
   };
-  
+
   const getTimes = async () => {
     if (latitude == null && longitude == null) {
       getStops();
     } else {
-      const stops_obj = await axios.get('/api/stops/')
+      const stops_obj = await fetch(`http://${API_BASE_URL}/api/stops/`);
       let stops_list = processApiObj(stops_obj)
       stops_list =  getClosestStops(stops_list,latitude, longitude, 5);
       const stopIds = stops_list.map(stop => stop.stop_id);
       console.log(`STOP IDS: ${stopIds}`);
-      let train_times = await axios.get(`/api/train_times/`);
+      let train_times = await fetch(`http://${API_BASE_URL}/api/train_times/`);
       train_times = convertObjToArray(train_times.data);
       train_times = train_times.map(train_time => train_time[1]);
       train_times = train_times.filter(route => stopIds.includes(route.stop_id));
@@ -85,14 +85,14 @@ const App = () => {
   };
 
   const getStops = async () => {
-    const stops_obj = await axios.get('/api/stops/');
+    const stops_obj = await fetch(`http://${API_BASE_URL}/api/stops/`);
     let stops_list = processApiObj(stops_obj);
     return stops_list.map((stop) => ({
       value: stop.name,
       label: stop.name,
     }));
   };
-  
+
   const handleErr = (err) => {
     console.log(err);
   };
@@ -105,10 +105,9 @@ const App = () => {
         handleErr(err);
       }, geoOptions);
     } else {
-        // Fallback for no geolocation
         handleErr(new Error('Geolocation not supported'));
-    }  
-    
+    }
+
   }, []);
 
   return (

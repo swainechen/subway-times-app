@@ -3,7 +3,7 @@ import { getStationTimes } from './services/api';
 import ArrivalCard from './components/ArrivalCard';
 import LastUpdated from './components/LastUpdated';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5280/api';
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 function App() {
   const [allStations, setAllStations] = useState([]);
@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     const fetchMasterStations = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/stations/`);
+        const res = await fetch(`http://${API_BASE_URL}/api/stations/`);
         if (res.ok) {
           const data = await res.json();
           const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
@@ -91,9 +91,9 @@ function App() {
 
       {/* Selector Dashboard Controls */}
       <section style={{ display: 'flex', gap: '10px', backgroundColor: '#fff', padding: '15px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #e1e4e6', maxWidth: '600px' }}>
-        <select 
-          value={selectedStationKey} 
-          onChange={(e) => setSelectedStationKey(e.target.value)} 
+        <select
+          value={selectedStationKey}
+          onChange={(e) => setSelectedStationKey(e.target.value)}
           style={{ flexGrow: 1, padding: '10px', borderRadius: '4px', border: '1px solid #ced4da', fontSize: '14px' }}
         >
           {allStations.map(station => (
@@ -113,25 +113,25 @@ function App() {
           No stations tracked. Select a station above to begin.
         </div>
       ) : (
-        <main style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          alignItems: 'flex-start', 
-          gap: '24px', 
-          overflowX: 'auto', 
+        <main style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          gap: '24px',
+          overflowX: 'auto',
           paddingBottom: '20px',
           width: '100%'
         }}>
           {dashboardData.map((station) => (
-            <section 
-              key={station.station_id} 
-              style={{ 
+            <section
+              key={station.station_id}
+              style={{
                 flex: '0 0 auto',
                 minWidth: '320px',
                 width: 'max-content',
-                backgroundColor: '#fff', 
-                border: '1px solid #e1e4e6', 
-                borderRadius: '8px', 
+                backgroundColor: '#fff',
+                border: '1px solid #e1e4e6',
+                borderRadius: '8px',
                 padding: '16px',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.04)',
                 display: 'flex',
@@ -152,22 +152,22 @@ function App() {
               </div>
 
               {/* TRAIN LINES SEPARATED INTO INTERNAL COLUMNS */}
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'row', 
+              <div style={{
+                display: 'flex',
+                flexDirection: 'row',
                 gap: '12px',
                 alignItems: 'flex-start',
                 width: '100%'
               }}>
                 {station.lines && Object.keys(station.lines).length > 0 ? (
                   Object.entries(station.lines).map(([lineLabel, arrivals]) => (
-                    <div 
-                      key={lineLabel} 
-                      style={{ 
+                    <div
+                      key={lineLabel}
+                      style={{
                         flex: '0 0 260px',
                         width: '260px',
-                        border: '1px solid #eef0f1', 
-                        borderRadius: '6px', 
+                        border: '1px solid #eef0f1',
+                        borderRadius: '6px',
                         overflow: 'hidden',
                         backgroundColor: '#fafbfc',
                         marginRight: '12px'
@@ -177,7 +177,7 @@ function App() {
                       <div style={{ backgroundColor: '#edf0f2', padding: '6px 10px', fontWeight: 'bold', borderBottom: '1px solid #eef0f1', color: '#495057', fontSize: '12px', textAlign: 'center' }}>
                         {lineLabel} Line
                       </div>
-                      
+
                       {/* List of Arrivals inside this specific Column */}
                       <div style={{ backgroundColor: '#fff' }}>
                         {arrivals.map((arrival, index) => (

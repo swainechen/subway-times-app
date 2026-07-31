@@ -4,49 +4,31 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/user-event": "^12.8.3",
-    "axios": "^1.6.5",
-    "cors": "^2.8.5",
-    "eslint-plugin-cypress": "^2.12.1",
-    "prop-types": "^15.8.1",
-    "react-dom": "^17.0.2",
-    "react-logger-lib": "^1.0.5",
-    "react-scripts": "^5.0.1",
-    "react-select": "^5.2.2",
-    "react-select-search": "^3.0.9",
-    "semantic-ui-react": "^2.1.1",
-    "web-vitals": "^1.1.2"
+    "axios": "^1.18.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-select-search": "^4.1.6",
+    "semantic-ui-react": "^2.1.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest",
     "server": "json-server -p3001 --watch db.json",
     "cypress:open": "cypress open"
   },
-  "proxy": "http://127.0.0.1:3001/",
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "@testing-library/react": "^12.1.2",
-    "cypress": "^13.6.3",
-    "json-server": "^0.17.0"
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitejs/plugin-react": "^4.3.1",
+    "cypress": "^15.19.0",
+    "eslint-plugin-cypress": "^3.3.0",
+    "json-server": "^1.0.0-beta.15",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
+  },
+  "allowScripts": {
+    "cypress@15.19.0": true,
+    "esbuild@0.21.5": true
   }
 }

@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5280/api';
+const API_BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 /**
  * Fetches real-time structured arrival schedules for a specific station identifier.
@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5280/api
  */
 export const getStationTimes = async (stationId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/times/${stationId}`);
+    const response = await fetch(`http://${API_BASE_URL}/api/times/${stationId}`);
     if (!response.ok) {
       throw new Error(`Matrix server responded with status code: ${response.status}`);
     }
